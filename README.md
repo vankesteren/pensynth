@@ -1,13 +1,16 @@
 
 # Penalized synthetic control estimation
 
-The goal of `pensynth` is to make it easier to perform penalized synthetic control in the spirit of [Abadie & L'Hour (2021)](https://doi.org/10.1080/01621459.2021.1971535).
+[![R-CMD-check](https://github.com/vankesteren/pensynth/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/vankesteren/pensynth/actions/workflows/R-CMD-check.yaml)
+
+The goal of `pensynth` is to make it easier to perform penalized synthetic control in the spirit of [Abadie & L'Hour (2021)](https://doi.org/10.1080/01621459.2021.1971535). 
 
 ## Features
 - Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools.
 - Built-in cross-validation on the pre-intervention outcome timeseries to determine the penalty parameter. (see example).
 - Plotting of the full solution path for cross-validated penalized synthetic controls.
-- Variable weights have to be pre-specified.
+
+NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementaion). Additionally, currently only a single treated unit is supported. 
 
 ## Installation
 
