@@ -14,10 +14,10 @@ NB: in this implementation, variable weights have to be pre-specified (unlike in
 
 ## Installation
 
-You can install the development version of `pensynth` like so:
+I recommend installing `pensynth` from r-universe like so:
 
 ``` r
-remotes::install_github("vankesteren/pensynth")
+install.packages("pensynth", repos = c("https://vankesteren.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 ## Example
