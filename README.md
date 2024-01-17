@@ -35,11 +35,11 @@ When the treated unit is in the convex hull of the donor units (which is more li
 
 The `pensynth` implementation achieves this through optimizing the following objective:
 
-$$
+```math
 \min_{\boldsymbol{w}} \left[ \| \boldsymbol{x}_1 - \boldsymbol{X}_0 \boldsymbol{w} \|^2 + \lambda \sum_{d\in D} \boldsymbol{w}_d \|\boldsymbol{x}_1 - \boldsymbol{x}_{d}\|^2 \right] \\
 \text{s.t.} \quad \boldsymbol{w}_1 \geq 0, ..., \boldsymbol{w}_D \geq 0,
 \, \sum_{d\in D} \boldsymbol{w}_d = 1
-$$
+```
 
 Where 
 - $\boldsymbol{x}_1$ is the column vector of treated unit covariates,  
