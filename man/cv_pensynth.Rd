@@ -11,7 +11,8 @@ cv_pensynth(
   Z1,
   Z0,
   nlambda = 100,
-  opt_pars = osqp::osqpSettings(polish = TRUE)
+  opt_pars = osqp::osqpSettings(polish = TRUE),
+  standardize = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ cv_pensynth(
 \item{nlambda}{\code{integer} length of lambda sequence (see details)}
 
 \item{opt_pars}{\code{osqp} settings using \code{\link[osqp:osqpSettings]{osqp::osqpSettings()}}}
+
+\item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 }
 \value{
 A list of the lambda sequence, the associated weights, and the mses

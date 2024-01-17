@@ -10,6 +10,7 @@
 #' @param v `N_covars vector` of variable weights
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `osqp` settings using [osqp::osqpSettings()]
+#' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
 #' @param debug `boolean` whether to print `osqp` solver info
 #'
 #' @details This routine uses the same notation of the original [Synth::synth()] implementation
@@ -56,7 +57,12 @@
 #' @seealso [cv_pensynth()] [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v, lambda = 0, opt_pars = osqp::osqpSettings(polish = TRUE), debug = FALSE) {
+pensynth <- function(X1, X0, v, lambda = 0, opt_pars = osqp::osqpSettings(polish = TRUE), standardize = TRUE, debug = FALSE) {
+  if (standardize) {
+    st <- standardize_X(X1, X0)
+    X0 <- st$X0
+    X1 <- st$X1
+  }
   N_donors <- ncol(X0)
   X0v <- X0*sqrt(v)
   X1v <- X1*sqrt(v)
@@ -93,5 +99,4 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = osqp::osqpSettings(polish
 
   return(list(w = result$x, solution = result, qpsolver = qpsolver))
 }
-
 

@@ -11,6 +11,7 @@
 #' @param Z0 `N_targets by N_donors matrix` of donor unit hold-out outcome
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `osqp` settings using [osqp::osqpSettings()]
+#' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-7, the max lambda is determined by the data.
@@ -40,7 +41,12 @@
 #' plot_path(res)
 #'
 #' @export
-cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpSettings(polish = TRUE)) {
+cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpSettings(polish = TRUE), standardize = TRUE) {
+  if (standardize) {
+    st <- standardize_X(X1, X0)
+    X0 <- st$X0
+    X1 <- st$X1
+  }
   N_donors <- ncol(X0)
   X0v <- X0*sqrt(v)
   X1v <- X1*sqrt(v)

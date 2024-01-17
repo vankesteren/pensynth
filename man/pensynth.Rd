@@ -10,6 +10,7 @@ pensynth(
   v,
   lambda = 0,
   opt_pars = osqp::osqpSettings(polish = TRUE),
+  standardize = TRUE,
   debug = FALSE
 )
 }
@@ -23,6 +24,8 @@ pensynth(
 \item{lambda}{\code{numeric} penalization parameter}
 
 \item{opt_pars}{\code{osqp} settings using \code{\link[osqp:osqpSettings]{osqp::osqpSettings()}}}
+
+\item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 
 \item{debug}{\code{boolean} whether to print \code{osqp} solver info}
 }

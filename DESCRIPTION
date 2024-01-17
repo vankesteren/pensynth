@@ -1,10 +1,10 @@
 Package: pensynth
 Type: Package
 Title: Penalized Synthetic Control Estimation
-Version: 0.1.0
+Version: 0.2.0
 Author: Erik-Jan van Kesteren <e.vankesteren1@uu.nl>
 Maintainer: Erik-Jan van Kesteren <e.vankesteren1@uu.nl>
-Description: Estimate penalized sythetic control models
+Description: Estimate penalized synthetic control models
     and perform cross-validation to determine the 
     penalty parameter.
 License: MIT + file LICENSE

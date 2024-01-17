@@ -10,7 +10,7 @@ v <- rep(1, 2)
 test_that("Basic pensynth works", {
   res <- pensynth::pensynth(X1, X0, v, lambda = 0)
   expect_length(res$w, 5)
-  expect_lt(sum(abs(res$w - c(0.335, 0.507, 0.029, 0.024, 0.104))), 5e-3)
+  expect_lt(sum(abs(res$w - c(0.344, 0.504, 0.036, 0.028, 0.087))), 5e-3)
 })
 
 test_that("Pensynth with high lambda works", {
