@@ -11,7 +11,7 @@ The goal of `pensynth` is to make it easier to perform penalized synthetic contr
 - Built-in cross-validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for cross-validated penalized synthetic controls.
 
-NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementaion). Additionally, currently only a single treated unit is supported. 
+NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementation). Additionally, currently only a single treated unit is supported. 
 
 ## Installation
 
