@@ -41,7 +41,8 @@
 #' plot_path(res)
 #'
 #' @export
-cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpSettings(polish = TRUE), standardize = TRUE) {
+cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpSettings(polish = TRUE), standardize = TRUE,
+                        return_solver_info = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -62,7 +63,7 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpS
   lbound <- c(1, rep(0, N_donors))
   ubound <- rep(1, N_donors + 1)
 
-  w_path <- sapply(lseq, function(lambda) {
+  all_solvers <- sapply(lseq, function(lambda) {
     o <- capture.output({
       # Instantiate the quadratic program solver
       qpsolver <- osqp::osqp(
@@ -76,21 +77,53 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpS
       # solve
       result <- qpsolver$Solve()
     })
-    return(result$x)
+    return(result)
   })
+
+  # Extract weights
+  w_path <- do.call(cbind, all_solvers["x",])
+
   colnames(w_path) <- lseq
   e_path <- sapply(1:nlambda, \(i) crossprod(Z1 - Z0 %*% w_path[,i])) / length(Z1)
 
-  out_obj <- structure(
-    .Data = list(
-      w_opt    = w_path[,which.min(e_path)],
-      l_opt    = lseq[which.min(e_path)],
-      lseq     = lseq,
-      w_path   = w_path,
-      mse_path = e_path
-    ),
-    class = "cvpensynth"
-  )
+  if (return_solver_info) {
+    out_obj <- structure(
+      .Data = list(
+        w_opt = w_path[, which.min(e_path)],
+        l_opt = lseq[which.min(e_path)],
+        lseq = lseq,
+        w_path = w_path,
+        mse_path = e_path,
+        iter = sapply(all_solvers["info",], \(info) info$iter),
+        status = sapply(all_solvers["info",], \(info) info$status_val),
+        status_val = sapply(all_solvers["info",], \(info) info$status_val),
+        status_polish = sapply(all_solvers["info",], \(info) info$status_polish),
+        obj_val = sapply(all_solvers["info",], \(info) info$obj_val),
+        pri_res = sapply(all_solvers["info",], \(info) info$pri_res),
+        dua_res = sapply(all_solvers["info",], \(info) info$dua_res),
+        setup_time = sapply(all_solvers["info",], \(info) info$setup_time),
+        solve_time = sapply(all_solvers["info",], \(info) info$solve_time),
+        update_time = sapply(all_solvers["info",], \(info) info$update_time),
+        polish_time = sapply(all_solvers["info",], \(info) info$polish_time),
+        run_time = sapply(all_solvers["info",], \(info) info$run_time),
+        rho_estimate = sapply(all_solvers["info",], \(info) info$rho_estimate),
+        rho_updates = sapply(all_solvers["info",], \(info) info$rho_updates)
+      ),
+      class = "cvpensynth"
+    )
+  } else {
+    out_obj <- structure(
+      .Data = list(
+        w_opt    = w_path[,which.min(e_path)],
+        l_opt    = lseq[which.min(e_path)],
+        lseq     = lseq,
+        w_path   = w_path,
+        mse_path = e_path
+      ),
+      class = "cvpensynth"
+    )
+  }
+
 
   return(out_obj)
 }
@@ -125,7 +158,7 @@ plot_path <- function(object, ...) {
   )
   plot(
     object$lseq,
-    object$w_path[1, ],
+    object$w_path[1,],
     log = "x",
     ylab = "Weight",
     xlab = "Lambda",
@@ -135,12 +168,12 @@ plot_path <- function(object, ...) {
     ...
   )
   for (i in 2:nw) {
-    lines(object$lseq, object$w_path[i, ], lty = i)
+    lines(object$lseq, object$w_path[i,], lty = i)
   }
 }
 
 lambda_sequence <- function(X1VX0, Delta, nlambda) {
   lmin <- 1e-7
-  lmax <- sum(abs(X1VX0/Delta))
+  lmax <- sum(abs(X1VX0 / Delta))
   return(exp(seq(log(lmin), log(lmax), len = nlambda)))
 }
