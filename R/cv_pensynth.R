@@ -12,6 +12,7 @@
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `osqp` settings using [osqp::osqpSettings()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
+#' @param return_solver_info `boolean` whether to return solver information (default FALSE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-7, the max lambda is determined by the data.
