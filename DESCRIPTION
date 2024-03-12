@@ -8,8 +8,7 @@ Authors@R: c(
     ),
     person("Isaac", "Slaughter", email = "is28@uw.edu", role = "ctb",
     comment = c(ORCID = "0000-0002-1911-2374")
-    )
-)
+    ))
 Description: Estimate penalized synthetic control models
     and perform cross-validation to determine the 
     penalty parameter.
