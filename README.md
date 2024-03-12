@@ -7,7 +7,7 @@
 The goal of `pensynth` is to make it easier to perform penalized synthetic control in the spirit of [Abadie & L'Hour (2021)](https://doi.org/10.1080/01621459.2021.1971535). 
 
 ## Features
-- Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools, because we use the [`osqp`](https://osqp.org/) quadratic program solver.
+- Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver.
 - Built-in cross-validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for cross-validated penalized synthetic controls.
 

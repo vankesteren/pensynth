@@ -9,10 +9,8 @@ pensynth(
   X0,
   v,
   lambda = 0,
-  opt_pars = NULL,
-  standardize = TRUE,
-  solver = "osqp",
-  debug = FALSE
+  opt_pars = clarabel::clarabel_control(),
+  standardize = TRUE
 )
 }
 \arguments{
@@ -24,19 +22,13 @@ pensynth(
 
 \item{lambda}{\code{numeric} penalization parameter}
 
-\item{opt_pars}{parameters to pass to solver (default depends on solver)}
+\item{opt_pars}{\code{clarabel} settings using \code{\link[clarabel:clarabel_control]{clarabel::clarabel_control()}}}
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
-
-\item{solver}{\code{character} which solver to use, either "osqp" or "clarabel"}
-
-\item{debug}{\code{boolean} whether to print solver info}
 }
 \value{
-A list containing \code{w}, the estimated weights; and
-\code{solution}, the result of the optimization; and \code{qpsolver}. If \code{osqp}
-solver has been used, list will also contain \code{qpsolver}, the \code{osqp}
-solver object
+A list with two values: \code{w}, the estimated weights; and
+\code{solution}, the result of the optimization.
 }
 \description{
 For a given set of variable weights (v) this function estimates
@@ -55,21 +47,15 @@ This is by design.
 
 The original synthetic control method can be recovered by setting lambda = 0. For determining
 lambda based on data, see \code{\link[=cv_pensynth]{cv_pensynth()}}.
-
-Default for \code{opt_pars} when using osqp is \code{osqp::osqpSettings(polish = TRUE)}.
-Default for \code{opt_pars} when using clarabel is \code{clarabel::clarabel_control()}.
 }
 \examples{
 # generate some data
 X0 <- matrix(
-  c(
-    1, 1.3,
+  c(1, 1.3,
     0.5, 1.8,
     1.1, 2.4,
     1.8, 1.8,
-    1.3, 1.8
-  ), 2
-)
+    1.3, 1.8), 2)
 X1 <- matrix(c(0.8, 1.65), 2)
 v <- rep(1, 2)
 
@@ -77,7 +63,7 @@ v <- rep(1, 2)
 res <- pensynth(X1, X0, v)
 plot(t(X0))
 points(t(X1), pch = 2)
-points(t(X0 \%*\% res$w), pch = 3)
+points(t(X0\%*\%res$w), pch = 3)
 
 # run synthetic control with penalty
 res <- pensynth(X1, X0, v, lambda = 0.5)

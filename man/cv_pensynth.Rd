@@ -11,10 +11,9 @@ cv_pensynth(
   Z1,
   Z0,
   nlambda = 100,
-  opt_pars = NULL,
+  opt_pars = clarabel::clarabel_control(),
   standardize = TRUE,
-  return_solver_info = FALSE,
-  solver = "osqp"
+  return_solver_info = FALSE
 )
 }
 \arguments{
@@ -30,13 +29,11 @@ cv_pensynth(
 
 \item{nlambda}{\code{integer} length of lambda sequence (see details)}
 
-\item{opt_pars}{parameters to pass to solver (default depends on solver)}
+\item{opt_pars}{\code{clarabel} settings using \code{\link[clarabel:clarabel_control]{clarabel::clarabel_control()}}}
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 
 \item{return_solver_info}{\code{boolean} whether to return diagnostic information concerning solver (default FALSE)}
-
-\item{solver}{\code{character} which solver to use, either "osqp" or "clarabel"}
 }
 \value{
 A list of the lambda sequence, the associated weights, and the mses. If
@@ -51,9 +48,6 @@ error on a hold-out set of pre-intervention outcome time-series.
 \details{
 The lambda sequence is an exponentially increasing sequence where
 The minimum lambda is always 1e-7, the max lambda is determined by the data.
-
-Default for \code{opt_pars} when using osqp is \code{osqp::osqpSettings(polish = TRUE)}.
-Default for \code{opt_pars} when using clarabel is \code{clarabel::clarabel_control()}.
 }
 \examples{
 set.seed(45)

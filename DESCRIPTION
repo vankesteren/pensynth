@@ -1,7 +1,7 @@
 Package: pensynth
 Type: Package
 Title: Penalized Synthetic Control Estimation
-Version: 0.2.0
+Version: 0.3.0
 Author: Erik-Jan van Kesteren <e.vankesteren1@uu.nl>
 Maintainer: Erik-Jan van Kesteren <e.vankesteren1@uu.nl>
 Description: Estimate penalized synthetic control models
@@ -14,7 +14,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports: 
     geometry,
-    osqp,
     clarabel
 Suggests: 
     testthat (>= 3.0.0)
