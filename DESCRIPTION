@@ -2,8 +2,13 @@ Package: pensynth
 Type: Package
 Title: Penalized Synthetic Control Estimation
 Version: 0.3.0
-Author: Erik-Jan van Kesteren <e.vankesteren1@uu.nl>
-Maintainer: Erik-Jan van Kesteren <e.vankesteren1@uu.nl>
+Authors@R: c(
+    person("Erik-Jan", "van Kesteren", email = "e.vankesteren1@uu.nl",
+    role = c("cre", "aut"), comment = c(ORCID = "0000-0003-1548-1663")
+    ),
+    person("Isaac", "Slaughter", email = "is28@uw.edu", role = "ctb",
+    comment = c(ORCID = "0000-0002-1911-2374")
+    )
 Description: Estimate penalized synthetic control models
     and perform cross-validation to determine the 
     penalty parameter.
