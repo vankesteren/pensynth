@@ -83,7 +83,7 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_contro
   )
 
 # Run the quadratic program solver
-  result <- clarabel(
+  result <- clarabel::clarabel(
     P = X0VX0,
     q = -X1VX0 + lambda*Delta,
     A = Amat,
