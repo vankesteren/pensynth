@@ -11,8 +11,9 @@ cv_pensynth(
   Z1,
   Z0,
   nlambda = 100,
-  opt_pars = osqp::osqpSettings(polish = TRUE),
-  standardize = TRUE
+  opt_pars = clarabel::clarabel_control(),
+  standardize = TRUE,
+  return_solver_info = FALSE
 )
 }
 \arguments{
@@ -28,12 +29,16 @@ cv_pensynth(
 
 \item{nlambda}{\code{integer} length of lambda sequence (see details)}
 
-\item{opt_pars}{\code{osqp} settings using \code{\link[osqp:osqpSettings]{osqp::osqpSettings()}}}
+\item{opt_pars}{\code{clarabel} settings using \code{\link[clarabel:clarabel_control]{clarabel::clarabel_control()}}}
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
+
+\item{return_solver_info}{\code{boolean} whether to return diagnostic information concerning solver (default FALSE)}
 }
 \value{
-A list of the lambda sequence, the associated weights, and the mses
+A list of the lambda sequence, the associated weights, and the mses. If
+\code{return_solver_info} is \code{TRUE}, the list will also contain diagnostic information about
+the solvers.
 }
 \description{
 Compute a penalized synthetic control estimator with cross-validation for the

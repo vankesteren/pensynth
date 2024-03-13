@@ -9,9 +9,8 @@ pensynth(
   X0,
   v,
   lambda = 0,
-  opt_pars = osqp::osqpSettings(polish = TRUE),
-  standardize = TRUE,
-  debug = FALSE
+  opt_pars = clarabel::clarabel_control(),
+  standardize = TRUE
 )
 }
 \arguments{
@@ -23,15 +22,13 @@ pensynth(
 
 \item{lambda}{\code{numeric} penalization parameter}
 
-\item{opt_pars}{\code{osqp} settings using \code{\link[osqp:osqpSettings]{osqp::osqpSettings()}}}
+\item{opt_pars}{\code{clarabel} settings using \code{\link[clarabel:clarabel_control]{clarabel::clarabel_control()}}}
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
-
-\item{debug}{\code{boolean} whether to print \code{osqp} solver info}
 }
 \value{
-A list with three values: \code{w}, the estimated weights;
-\code{solution}, the result of the optimization; and \code{qpsolver}, the \code{osqp} optimizer object
+A list with two values: \code{w}, the estimated weights; and
+\code{solution}, the result of the optimization.
 }
 \description{
 For a given set of variable weights (v) this function estimates

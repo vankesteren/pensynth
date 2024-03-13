@@ -10,13 +10,16 @@
 #' @param Z1 `N_targets by 1 matrix` of treated unit hold-out outcome
 #' @param Z0 `N_targets by N_donors matrix` of donor unit hold-out outcome
 #' @param nlambda `integer` length of lambda sequence (see details)
-#' @param opt_pars `osqp` settings using [osqp::osqpSettings()]
+#' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
+#' @param return_solver_info `boolean` whether to return diagnostic information concerning solver (default FALSE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-7, the max lambda is determined by the data.
 #'
-#' @return A list of the lambda sequence, the associated weights, and the mses
+#' @return A list of the lambda sequence, the associated weights, and the mses. If
+#' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
+#' the solvers.
 #'
 #' @seealso [pensynth()] [plot_path()]
 #'
@@ -41,7 +44,8 @@
 #' plot_path(res)
 #'
 #' @export
-cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpSettings(polish = TRUE), standardize = TRUE) {
+cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::clarabel_control(), standardize = TRUE,
+                        return_solver_info = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -57,38 +61,73 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = osqp::osqpS
 
   lseq <- lambda_sequence(X1VX0, Delta, nlambda)
 
-  # linear constraint matrix
-  Amat   <- rbind(rep(1, N_donors), diag(N_donors))
-  lbound <- c(1, rep(0, N_donors))
-  ubound <- rep(1, N_donors + 1)
+  # Constraint matrices
+  Amat <- rbind(
+    rep(1, N_donors), # Sum to 1 constraint
+    -diag(N_donors) # Individ. weights gte 0 constraint
+  )
+  B <- c(
+    1, # Sum to 1 constraint
+    rep(0, N_donors) # Individ. weights gte 0 constraint
+  )
 
-  w_path <- sapply(lseq, function(lambda) {
-    o <- capture.output({
-      # Instantiate the quadratic program solver
-      qpsolver <- osqp::osqp(
-        P = X0VX0,
-        q = -X1VX0 + lambda*Delta,
-        A = Amat,
-        l = lbound,
-        u = ubound,
-        pars = opt_pars
-      )
-      # solve
-      result <- qpsolver$Solve()
-    })
-    return(result$x)
-  })
+  # Define function for solving qp for a given lambda
+  solve_qp <- function(lambda) {
+    # run the quadratic program solver
+    result <- clarabel::clarabel(
+      P = X0VX0,
+      q = -X1VX0 + lambda*Delta,
+      A = Amat,
+      b = B,
+      cones = list(
+        z = 1L, # There is 1 equality
+        l = N_donors # There are N_donors inequalities
+      ),
+      control = opt_pars
+    )
+
+    # clarabel only returns a numeric status code, so we'll add a
+    # human-readable status column here (plus a description)
+    result$status_description <- clarabel::solver_status_descriptions()[result$status][[1]]
+    result$status <- names(clarabel::solver_status_descriptions()[result$status])
+
+    # Return result
+    return(result)
+  }
+
+  solver_output <- sapply(lseq, solve_qp)
+
+  # Extract weights
+  w_path <- do.call(cbind, solver_output["x", ])
+
   colnames(w_path) <- lseq
   e_path <- sapply(1:nlambda, \(i) crossprod(Z1 - Z0 %*% w_path[,i])) / length(Z1)
 
-  out_obj <- structure(
-    .Data = list(
+  # Construct a list of outputs
+  out_obj <- list(
       w_opt    = w_path[,which.min(e_path)],
       l_opt    = lseq[which.min(e_path)],
       lseq     = lseq,
       w_path   = w_path,
       mse_path = e_path
-    ),
+  )
+
+  # If we've been requested to return info about the solving process, do so
+  if (return_solver_info) {
+    # Remove unneeded columns from the solver output matrix
+    rows_to_drop <- c("x", "y", "s", "z")
+    solver_output <- solver_output[!rownames(solver_output) %in% rows_to_drop, ]
+
+    # Add each row from the solver output matrix to .Data
+    for (i in 1:nrow(solver_output)) {
+      row_name <- rownames(solver_output)[i]
+      out_obj[[row_name]] <- unlist(solver_output[i, ])
+    }
+  }
+
+  # Convert the list to a cvpensynth object
+  out_obj <- structure(
+    .Data = out_obj,
     class = "cvpensynth"
   )
 
@@ -140,7 +179,7 @@ plot_path <- function(object, ...) {
 }
 
 lambda_sequence <- function(X1VX0, Delta, nlambda) {
-  lmin <- 1e-7
+  lmin <- 1e-11
   lmax <- sum(abs(X1VX0/Delta))
   return(exp(seq(log(lmin), log(lmax), len = nlambda)))
 }

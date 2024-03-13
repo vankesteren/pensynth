@@ -9,9 +9,8 @@
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
 #' @param v `N_covars vector` of variable weights
 #' @param lambda `numeric` penalization parameter
-#' @param opt_pars `osqp` settings using [osqp::osqpSettings()]
+#' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
-#' @param debug `boolean` whether to print `osqp` solver info
 #'
 #' @details This routine uses the same notation of the original [Synth::synth()] implementation
 #' but uses a different, faster quadratic program solver (namely, [osqp::osqp()]). Additionally, it
@@ -28,8 +27,8 @@
 #' A penalized synthetic control estimator for disaggregated data.
 #' _Journal of the American Statistical Association, 116_(536), 1817-1834.
 #'
-#' @return A list with three values: `w`, the estimated weights;
-#' `solution`, the result of the optimization; and `qpsolver`, the `osqp` optimizer object
+#' @return A list with two values: `w`, the estimated weights; and
+#' `solution`, the result of the optimization.
 #'
 #' @importFrom utils capture.output
 #'
@@ -57,7 +56,7 @@
 #' @seealso [cv_pensynth()] [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v, lambda = 0, opt_pars = osqp::osqpSettings(polish = TRUE), standardize = TRUE, debug = FALSE) {
+pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -73,30 +72,34 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = osqp::osqpSettings(polish
   X1VX0 <- crossprod(X1v, X0v)
   Delta <- apply(X0v - c(X1v), 2, crossprod)
 
-  # linear constraint matrix
-  Amat   <- rbind(rep(1, N_donors), diag(N_donors))
-  lbound <- c(1, rep(0, N_donors))
-  ubound <- rep(1, N_donors + 1)
+  # Constraint matrices
+  Amat <- rbind(
+    rep(1, N_donors), # Sum to 1 constraint
+    -diag(N_donors) # Individ. weights gte 0 constraint
+  )
+  B <- c(
+    1, # Sum to 1 constraint
+    rep(0, N_donors) # Individ. weights gte 0 constraint
+  )
 
-  # stop annoying printing with capture.output.
-  o <- capture.output({
+# Run the quadratic program solver
+  result <- clarabel::clarabel(
+    P = X0VX0,
+    q = -X1VX0 + lambda*Delta,
+    A = Amat,
+    b = B,
+    cones = list(
+      z = 1L, # There are 1 equalities
+      l = N_donors # There are N_donors * 2 inequalities
+    ),
+    control = opt_pars
+  )
 
-    # Instantiate the quadratic program solver
-    qpsolver <- osqp::osqp(
-      P = X0VX0,
-      q = -X1VX0 + lambda*Delta,
-      A = Amat,
-      l = lbound,
-      u = ubound,
-      pars = opt_pars
-    )
+  # clarabel only returns a numeric status code, so we'll add a
+  # human-readable status column here (plus a description)
+  result$status_description <- clarabel::solver_status_descriptions()[result$status][[1]]
+  result$status <- names(clarabel::solver_status_descriptions()[result$status])
 
-    # solve
-    result <- qpsolver$Solve()
-  })
 
-  if (debug) cat(o, sep = "\n")
-
-  return(list(w = result$x, solution = result, qpsolver = qpsolver))
+  return(list(w = result$x, solution = result))
 }
-
