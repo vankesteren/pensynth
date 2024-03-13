@@ -179,7 +179,7 @@ plot_path <- function(object, ...) {
 }
 
 lambda_sequence <- function(X1VX0, Delta, nlambda) {
-  lmin <- 1e-7
+  lmin <- 1e-11
   lmax <- sum(abs(X1VX0/Delta))
   return(exp(seq(log(lmin), log(lmax), len = nlambda)))
 }
