@@ -3,3 +3,5 @@
 ^LICENSE\.md$
 ^img/*$
 ^\.github$
+^README.md$
+^CRAN-SUBMISSION$
