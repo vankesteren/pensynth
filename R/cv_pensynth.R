@@ -142,6 +142,8 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
 #' @param object a `cvpensynth` output object
 #' @param ... additional arguments passed to `plot()`
 #'
+#' @return No return value, called for side effects
+#'
 #' @seealso [cv_pensynth()] [pensynth()]
 #'
 #' @importFrom graphics lines par

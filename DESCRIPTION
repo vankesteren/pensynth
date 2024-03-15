@@ -11,10 +11,10 @@ Authors@R: c(
     ))
 Description: Estimate penalized synthetic control models
     and perform hold-out validation to determine their 
-    penalty parameter. Penalized synthetic controls smoothly
-    interpolate between one-to-one matching and the synthetic
-    control method (Abadie & L'Hour, 2021) 
-    <doi:10.1080/01621459.2021.1971535>.
+    penalty parameter. This method is based on the work by
+    Abadie & L'Hour (2021) <doi:10.1080/01621459.2021.1971535>.
+    Penalized synthetic controls smoothly interpolate between 
+    one-to-one matching and the synthetic control method.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -11,6 +11,9 @@ plot_path(object, ...)
 
 \item{...}{additional arguments passed to \code{plot()}}
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Displays a mean squared error curve and weights curve as a function
 of lambda, the penalization parameter.
