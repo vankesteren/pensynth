@@ -3,6 +3,8 @@
 
 [![R-CMD-check](https://github.com/vankesteren/pensynth/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/vankesteren/pensynth/actions/workflows/R-CMD-check.yaml)
 [![pensynth status badge](https://vankesteren.r-universe.dev/badges/pensynth)](https://vankesteren.r-universe.dev/pensynth)
+[![cran version](
+https://www.r-pkg.org/badges/version/pensynth)](https://cran.r-project.org/package=pensynth)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 The goal of `pensynth` is to make it easier to perform penalized synthetic control in the spirit of [Abadie & L'Hour (2021)](https://doi.org/10.1080/01621459.2021.1971535). 
@@ -22,7 +24,13 @@ I recommend installing `pensynth` from r-universe like so:
 install.packages("pensynth", repos = c("https://vankesteren.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
-The latest version can also be installed directly from this repository:
+The package is also on CRAN, so it can be installed directly from there too.
+
+```r
+install.packages("pensynth")
+```
+
+The latest development version can also be installed directly from this repository:
 
 ```r
 remotes::install_github("vankesteren/pensynth")
