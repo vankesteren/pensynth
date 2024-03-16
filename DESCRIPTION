@@ -4,11 +4,10 @@ Title: Penalized Synthetic Control Estimation
 Version: 0.3.1
 Authors@R: c(
     person("Erik-Jan", "van Kesteren", email = "e.vankesteren1@uu.nl",
-    role = c("cre", "aut"), comment = c(ORCID = "0000-0003-1548-1663")
-    ),
+           role = c("cre", "aut"), comment = c(ORCID = "0000-0003-1548-1663")),
     person("Isaac", "Slaughter", email = "is28@uw.edu", role = "ctb",
-    comment = c(ORCID = "0000-0002-1911-2374")
-    ))
+           comment = c(ORCID = "0000-0002-1911-2374"))
+  )
 Description: Estimate penalized synthetic control models
     and perform hold-out validation to determine their 
     penalty parameter. This method is based on the work by
@@ -16,6 +15,7 @@ Description: Estimate penalized synthetic control models
     Penalized synthetic controls smoothly interpolate between 
     one-to-one matching and the synthetic control method.
 License: MIT + file LICENSE
+URL: https://github.com/vankesteren/pensynth
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
