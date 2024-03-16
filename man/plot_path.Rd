@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv_pensynth.R
 \name{plot_path}
 \alias{plot_path}
-\title{Plotting for cross-validated penalized synthetic control objects}
+\title{Plotting for hold-out validated penalized synthetic control objects}
 \usage{
 plot_path(object, ...)
 }

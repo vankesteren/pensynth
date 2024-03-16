@@ -1,6 +1,6 @@
-#' Cross-validated penalized synthetic control estimator
+#' Hold-out validated penalized synthetic control estimator
 #'
-#' Compute a penalized synthetic control estimator with cross-validation for the
+#' Compute a penalized synthetic control estimator with hold-out validation for the
 #' lambda penalty parameter. Lambda will be determined by minimizing the mean squared
 #' error on a hold-out set of pre-intervention outcome time-series.
 #'
@@ -134,7 +134,7 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
   return(out_obj)
 }
 
-#' Plotting for cross-validated penalized synthetic control objects
+#' Plotting for hold-out validated penalized synthetic control objects
 #'
 #' Displays a mean squared error curve and weights curve as a function
 #' of lambda, the penalization parameter.

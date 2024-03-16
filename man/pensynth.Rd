@@ -38,9 +38,9 @@ single treated unit.
 }
 \details{
 This routine uses the same notation of the original \code{\link[Synth:synth]{Synth::synth()}} implementation
-but uses a different, faster quadratic program solver (namely, \code{\link[osqp:osqp]{osqp::osqp()}}). Additionally, it
-implements the penalization procedure described in Abadie & L'Hour (2021), such that the loss
-function is as in equation 5 of that paper (but for a single treated unit).
+but uses a different, faster quadratic program solver (namely, \code{\link[clarabel:clarabel]{clarabel::clarabel()}}).
+Additionally, it implements the penalization procedure described in Abadie & L'Hour (2021),
+such that the loss function is as in equation 5 of that paper (but for a single treated unit).
 
 Variable weights are not optimized by this function, meaning they need to be pre-specified.
 This is by design.

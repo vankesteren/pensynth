@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv_pensynth.R
 \name{cv_pensynth}
 \alias{cv_pensynth}
-\title{Cross-validated penalized synthetic control estimator}
+\title{Hold-out validated penalized synthetic control estimator}
 \usage{
 cv_pensynth(
   X1,
@@ -41,7 +41,7 @@ A list of the lambda sequence, the associated weights, and the mses. If
 the solvers.
 }
 \description{
-Compute a penalized synthetic control estimator with cross-validation for the
+Compute a penalized synthetic control estimator with hold-out validation for the
 lambda penalty parameter. Lambda will be determined by minimizing the mean squared
 error on a hold-out set of pre-intervention outcome time-series.
 }
