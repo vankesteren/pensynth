@@ -15,7 +15,7 @@
 #' @param return_solver_info `boolean` whether to return diagnostic information concerning solver (default FALSE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
-#' The minimum lambda is always 1e-7, the max lambda is determined by the data.
+#' The minimum lambda is always 1e-11, the max lambda is determined by the data.
 #'
 #' @return A list of the lambda sequence, the associated weights, and the mses. If
 #' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
@@ -180,6 +180,30 @@ plot_path <- function(object, ...) {
   }
 }
 
+#' Determine lambda sequence
+#'
+#' This function uses the weighted cross-product matrix
+#' (X1VX0) and Delta to determine the lambda sequence.
+#' This sequence will be exponentially increasing so it
+#' is easy to plot with a logarithmic x-axis
+#'
+#' @param X1VX0 the weighted cross-product matrix
+#' @param Delta the matching penalty matrix
+#' @param nlambda the number of lambda values
+#'
+#' @details
+#' The formula for the maximum lambda value was determined
+#' empirically, with an eye for the form of the quadratic
+#' program. In general, the max lambda should be so large
+#' that we are practically in "nearest-neighbour" matching
+#' territory. This formula ensures this for a wide range
+#' of input parameters.
+#'
+#' @seealso [plot_path()]
+#'
+#' @return lambda sequence as a numeric vector
+#'
+#' @keywords internal
 lambda_sequence <- function(X1VX0, Delta, nlambda) {
   lmin <- 1e-11
   lmax <- sum(abs(X1VX0/Delta))

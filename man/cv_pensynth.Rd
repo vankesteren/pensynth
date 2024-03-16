@@ -47,7 +47,7 @@ error on a hold-out set of pre-intervention outcome time-series.
 }
 \details{
 The lambda sequence is an exponentially increasing sequence where
-The minimum lambda is always 1e-7, the max lambda is determined by the data.
+The minimum lambda is always 1e-11, the max lambda is determined by the data.
 }
 \examples{
 set.seed(45)
