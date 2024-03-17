@@ -72,10 +72,16 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_contro
   X1VX0 <- crossprod(X1v, X0v)
   Delta <- apply(X0v - c(X1v), 2, crossprod)
 
-  # Constraint matrices
-  Amat <- rbind(
-    rep(1, N_donors), # Sum to 1 constraint
-    -diag(N_donors) # Individ. weights gte 0 constraint
+  # Constraint matrices (sparse for efficiency)
+  # Amat <- rbind(
+  #   rep(1, N_donors), # Sum to 1 constraint
+  #   -diag(N_donors) # Individ. weights gte 0 constraint
+  # )
+  Amat <- Matrix::sparseMatrix(
+    i = c(rep(1, N_donors), 2:(N_donors + 1)),
+    j = c(1:N_donors, 1:N_donors),
+    x = c(rep(1, N_donors), rep(-1, N_donors)),
+    repr = "C"
   )
   B <- c(
     1, # Sum to 1 constraint

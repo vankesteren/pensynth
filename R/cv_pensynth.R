@@ -62,9 +62,15 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
   lseq <- lambda_sequence(X1VX0, Delta, nlambda)
 
   # Constraint matrices
-  Amat <- rbind(
-    rep(1, N_donors), # Sum to 1 constraint
-    -diag(N_donors) # Individ. weights gte 0 constraint
+  # Amat <- rbind(
+  #   rep(1, N_donors), # Sum to 1 constraint
+  #   -diag(N_donors) # Individ. weights gte 0 constraint
+  # )
+  Amat <- Matrix::sparseMatrix(
+    i = c(rep(1, N_donors), 2:(N_donors + 1)),
+    j = c(1:N_donors, 1:N_donors),
+    x = c(rep(1, N_donors), rep(-1, N_donors)),
+    repr = "C"
   )
   B <- c(
     1, # Sum to 1 constraint
