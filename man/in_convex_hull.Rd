@@ -2,14 +2,16 @@
 % Please edit documentation in R/convex_hull.R
 \name{in_convex_hull}
 \alias{in_convex_hull}
-\title{Is the treated unit in the convex hull}
+\title{Check whether treated unit is in the convex hull of donors}
 \usage{
-in_convex_hull(X1, X0)
+in_convex_hull(X1, X0, ...)
 }
 \arguments{
 \item{X1}{\verb{N_covars by 1 matrix} of treated unit covariates}
 
 \item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
+
+\item{...}{additional arguments passed to \code{\link[clarabel:clarabel]{clarabel::clarabel()}}}
 }
 \value{
 \code{bool} whether the treated unit is in the convex hull of
@@ -19,6 +21,12 @@ the donor units.
 This function finds out if the treated unit is in the convex hull
 of the donor units.
 }
-\seealso{
-\code{\link[geometry:convhulln]{geometry::convhulln()}} \code{\link[geometry:inhulln]{geometry::inhulln()}}
+\details{
+This function does not actually construct the convex hull (which
+is infeasible in higher dimensions), but rather it checks whether
+the following linear program has a feasible solution:
+min q'w s.t. Aw = b
+with w constrained to be above 0 and sum to 1, the feasibility
+of this linear program directly corresponds to whether the treated
+is in the convex hull
 }
