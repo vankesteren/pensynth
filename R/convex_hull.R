@@ -16,11 +16,30 @@
 #' of this linear program directly corresponds to whether the treated
 #' is in the convex hull
 #'
+#' When the treated unit very close to the boundary of the convex hull
+#' this method usually cannot determine this exactly and this function
+#' may return `NA` with the warning "Solver terminated due to lack of
+#' progress"
+#'
 #' @return `bool` whether the treated unit is in the convex hull of
-#' the donor units.
+#' the donor units. `NA` if this cannot be determined. Vector if X1
+#' has multiple columns.
 #'
 #' @export
 in_convex_hull <- function(X1, X0, ...) {
+
+  # if there are multiple columns in X1, run this
+  # function on each column
+  N_treated <- ncol(X1)
+  if (!is.null(N_treated) && N_treated > 1) {
+    res <- vapply(
+      X = 1:N_treated,
+      FUN = function(i) in_convex_hull(X1[, i], X0),
+      FUN.VALUE = logical(1)
+    )
+    return(res)
+  }
+
   # using linear progam feasibility
   # to find whether X1 is in
   # convex hull of X0.
@@ -65,9 +84,11 @@ in_convex_hull <- function(X1, X0, ...) {
   # if proven infeasible, return FALSE
   if (sol$status %in% c(3, 4, 6, 7)) return(FALSE)
 
-  # else, return error with message
-  stop(
-    "Could not determine whether X0 is in convex hull:\n",
+  # else, return NA with error message
+  warning(
+    "Could not determine whether X1 unit is in convex hull:\n  ",
     clarabel::solver_status_descriptions()[sol$status]
   )
+  return(NA)
 }
+
