@@ -25,7 +25,9 @@ of the donor units.
 This function does not actually construct the convex hull (which
 is infeasible in higher dimensions), but rather it checks whether
 the following linear program has a feasible solution:
+
 min q'w s.t. Aw = b
+
 with w constrained to be above 0 and sum to 1, the feasibility
 of this linear program directly corresponds to whether the treated
 is in the convex hull
