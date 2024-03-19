@@ -107,5 +107,19 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_contro
   result$status <- names(clarabel::solver_status_descriptions()[result$status])
 
 
-  return(list(w = result$x, solution = result))
+  return(structure(.Data = list(w = result$x, solution = result), class = "pensynth"))
+}
+
+#' Create prediction from pensynth model
+#'
+#' @param object a fitted pensynth model
+#' @param newdata N_values * N_donors matrix of
+#' values for the donor units.
+#' @importFrom stats predict
+#'
+#' @method predict pensynth
+#'
+#' @export
+predict.pensynth <- function(object, newdata, ...) {
+  return(newdata %*% object$w)
 }

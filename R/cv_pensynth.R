@@ -215,3 +215,24 @@ lambda_sequence <- function(X1VX0, Delta, nlambda) {
   lmax <- sum(abs(X1VX0/Delta))
   return(exp(seq(log(lmin), log(lmax), len = nlambda)))
 }
+
+
+#' Create prediction from pensynth model
+#'
+#' @param object a fitted pensynth model
+#' @param newdata N_values * N_donors matrix of
+#' values for the donor units.
+#' @param lambda desired lambda value
+#'
+#' @importFrom stats predict approx
+#'
+#' @method predict cvpensynth
+#'
+#' @export
+predict.cvpensynth <- function(object, newdata, lambda, ...) {
+  if (missing(lambda)) return(newdata %*% object$w_opt)
+  # find lambda idx
+  lambda_idx <- which.min(abs(log(object[["lseq"]]) - log(lambda)))
+  message("Closest lambda: ", object[["lseq"]][lambda_idx])
+  return(newdata %*% object[["w_path"]][,lambda_idx])
+}
