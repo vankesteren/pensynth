@@ -2,6 +2,7 @@
 
 S3method(predict,cvpensynth)
 S3method(predict,pensynth)
+S3method(print,pensynth)
 export(cv_pensynth)
 export(in_convex_hull)
 export(pensynth)

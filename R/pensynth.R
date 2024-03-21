@@ -107,8 +107,31 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_contro
   result$status <- names(clarabel::solver_status_descriptions()[result$status])
 
 
-  return(structure(.Data = list(w = result$x, solution = result), class = "pensynth"))
+  return(structure(
+    .Data = list(
+      w = result$x,
+      solution = result,
+      call = match.call()
+    ),
+    class = "pensynth"
+  ))
 }
+
+#' Print pensynth model
+#'
+#' @method print pensynth
+#'
+#' @export
+print.pensynth <- function(x, ...) {
+  cat("Pensynth model\n--------------\n")
+  cat("- call: ")
+  print(x$call)
+  cat("- solution:", x$solution$status, "\n")
+  cat("- w:", round(x$w, 3)[1:min(length(x$w), 8)])
+  if(length(x$w) > 8) cat("...")
+  return(invisible(x))
+}
+
 
 #' Create prediction from pensynth model
 #'
