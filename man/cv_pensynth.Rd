@@ -64,10 +64,10 @@ X1 <- X0\%*\%w
 Z0 <- matrix(rnorm(N_target*N_donor), N_target)
 Z1 <- Z0\%*\%w
 
-res <- cv_pensynth(X1, X0, v, Z1, Z0)
-plot_path(res)
+res <- cv_pensynth(X1, X0, Z1, Z0, v)
+plot(res)
 
 }
 \seealso{
-\code{\link[=pensynth]{pensynth()}} \code{\link[=plot_path]{plot_path()}}
+\code{\link[=pensynth]{pensynth()}} \code{\link[=plot.cvpensynth]{plot.cvpensynth()}} \code{\link[=placebo_test]{placebo_test()}}
 }

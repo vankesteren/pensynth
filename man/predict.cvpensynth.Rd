@@ -13,6 +13,8 @@
 values for the donor units.}
 
 \item{lambda}{desired lambda value}
+
+\item{...}{ignored}
 }
 \description{
 Create prediction from pensynth model

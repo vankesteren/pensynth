@@ -11,6 +11,8 @@
 
 \item{newdata}{N_values * N_donors matrix of
 values for the donor units.}
+
+\item{...}{ignored}
 }
 \description{
 Create prediction from pensynth model

@@ -119,6 +119,9 @@ pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_co
 
 #' Print pensynth model
 #'
+#' @param x a pensynth object
+#' @param ... ignored
+#'
 #' @method print pensynth
 #'
 #' @export
@@ -138,6 +141,8 @@ print.pensynth <- function(x, ...) {
 #' @param object a fitted pensynth model
 #' @param newdata N_values * N_donors matrix of
 #' values for the donor units.
+#' @param ... ignored
+#'
 #' @importFrom stats predict
 #'
 #' @method predict pensynth

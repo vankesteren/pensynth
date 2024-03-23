@@ -6,6 +6,11 @@
 \usage{
 \method{print}{pensynth}(x, ...)
 }
+\arguments{
+\item{x}{a pensynth object}
+
+\item{...}{ignored}
+}
 \description{
 Print pensynth model
 }

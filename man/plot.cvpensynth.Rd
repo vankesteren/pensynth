@@ -4,10 +4,10 @@
 \alias{plot.cvpensynth}
 \title{Plotting for hold-out validated penalized synthetic control objects}
 \usage{
-\method{plot}{cvpensynth}(object, ...)
+\method{plot}{cvpensynth}(x, ...)
 }
 \arguments{
-\item{object}{a \code{cvpensynth} output object}
+\item{x}{a \code{cvpensynth} output object}
 
 \item{...}{additional arguments passed to \code{plot()}}
 }

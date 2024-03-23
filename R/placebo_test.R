@@ -11,6 +11,7 @@
 #' @param Y0 the post-intervention outcome of the donor units
 #' (with N_donors columns)
 #'
+#' @importFrom stats getCall update
 #'
 #' @return A list with two elements
 #' - E1, the treated unit effect, computed as `Y1 - Y0 %*% w`
@@ -26,7 +27,7 @@
 #' 493-505.
 #'
 #' @export
-placebo_test <- function(x, ...){
+placebo_test <- function(object, Y1, Y0){
   UseMethod("placebo_test")
 }
 
@@ -129,26 +130,28 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
 #' estimated treatement effect for the treated unit
 #' for the pensynth permutation test.
 #'
-#' @param object a `pensynthtest` object
+#' @param x a `pensynthtest` object
 #' @param ... additional parameters passed to `plot`
+#'
+#' @importFrom graphics legend
 #'
 #' @seealso [base::plot()]
 #'
 #' @method plot pensynthtest
 #'
 #' @export
-plot.pensynthtest <- function(object, ...) {
-  val_range <- range(c(object$E0, object$E1))
-  N_post <- nrow(object$E0)
-  N_donors <- ncol(object$E0)
+plot.pensynthtest <- function(x, ...) {
+  val_range <- range(c(x$E0, x$E1))
+  N_post <- nrow(x$E0)
+  N_donors <- ncol(x$E0)
   plot(
     NA, ylim = val_range, xlim = c(1, N_post),
     ylab = "Treatment effect",
     xlab = "Post-intervention timepoint",
     ...
   )
-  for (n in 1:N_donors) lines(object$E0[,n], col = "grey")
-  lines(object$E1, lwd = 1.2)
+  for (n in 1:N_donors) lines(x$E0[,n], col = "grey")
+  lines(x$E1, lwd = 1.2)
   legend("topright", lty = c(1, 1), col = c("grey", "black"),
          legend = c("reference", "estimate"))
 }

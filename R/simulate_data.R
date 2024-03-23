@@ -22,6 +22,8 @@
 #' - Y0 the donor unit post-intervention outcomes
 #' - Y1 the treated unit post-intervention outcomes
 #'
+#' @importFrom stats rnorm runif
+#'
 #' @details
 #' Note that treatment effect can be a single number, but
 #' it may also be a vector of length N_post, indicating
