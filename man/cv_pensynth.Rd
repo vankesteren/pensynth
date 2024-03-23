@@ -7,9 +7,9 @@
 cv_pensynth(
   X1,
   X0,
-  v,
   Z1,
   Z0,
+  v = 1,
   nlambda = 100,
   opt_pars = clarabel::clarabel_control(),
   standardize = TRUE,
@@ -21,11 +21,11 @@ cv_pensynth(
 
 \item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
 
-\item{v}{\verb{N_covars vector} of variable weights}
-
 \item{Z1}{\verb{N_targets by 1 matrix} of treated unit hold-out outcome}
 
 \item{Z0}{\verb{N_targets by N_donors matrix} of donor unit hold-out outcome}
+
+\item{v}{\verb{N_covars vector} of variable weights, default 1}
 
 \item{nlambda}{\code{integer} length of lambda sequence (see details)}
 

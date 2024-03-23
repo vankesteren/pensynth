@@ -6,9 +6,9 @@
 #'
 #' @param X1 `N_covars by 1 matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
-#' @param v `N_covars vector` of variable weights
 #' @param Z1 `N_targets by 1 matrix` of treated unit hold-out outcome
 #' @param Z0 `N_targets by N_donors matrix` of donor unit hold-out outcome
+#' @param v `N_covars vector` of variable weights, default 1
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
@@ -44,7 +44,7 @@
 #' plot_path(res)
 #'
 #' @export
-cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::clarabel_control(), standardize = TRUE,
+cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabel::clarabel_control(), standardize = TRUE,
                         return_solver_info = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
@@ -115,7 +115,8 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
       l_opt    = lseq[which.min(e_path)],
       lseq     = lseq,
       w_path   = w_path,
-      mse_path = e_path
+      mse_path = e_path,
+      call     = match.call()
   )
 
   # If we've been requested to return info about the solving process, do so
@@ -154,8 +155,10 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
 #'
 #' @importFrom graphics lines par
 #'
+#' @method plot cvpensynth
+#'
 #' @export
-plot_path <- function(object, ...) {
+plot.cvpensynth <- function(object, ...) {
   nw <- nrow(object$w_path)
   mfrow_old <- par("mfrow")
   on.exit(par(mfrow = mfrow_old))
@@ -170,6 +173,7 @@ plot_path <- function(object, ...) {
     main = "Mean squared prediction errors",
     ...
   )
+  abline(v = object$l_opt, col = "grey")
   plot(
     object$lseq,
     object$w_path[1, ],
@@ -178,9 +182,10 @@ plot_path <- function(object, ...) {
     xlab = "Lambda",
     type = "l",
     ylim = c(0, 1),
-    main = "Weights",
+    main = "Unit weights",
     ...
   )
+  abline(v = object$l_opt, col = "grey")
   for (i in 2:nw) {
     lines(object$lseq, object$w_path[i, ], lty = i)
   }
@@ -205,7 +210,7 @@ plot_path <- function(object, ...) {
 #' territory. This formula ensures this for a wide range
 #' of input parameters.
 #'
-#' @seealso [plot_path()]
+#' @seealso [plot.cvpensynth()]
 #'
 #' @return lambda sequence as a numeric vector
 #'

@@ -7,7 +7,7 @@
 #'
 #' @param X1 `N_covars by 1 matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
-#' @param v `N_covars vector` of variable weights
+#' @param v `N_covars vector` of variable weights (default 1)
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
@@ -56,7 +56,7 @@
 #' @seealso [cv_pensynth()] [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
+pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
