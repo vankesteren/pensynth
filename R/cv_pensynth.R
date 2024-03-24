@@ -21,27 +21,11 @@
 #' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
 #' the solvers.
 #'
-#' @seealso [pensynth()] [plot.cvpensynth()] [placebo_test()]
+#' @seealso [pensynth()], [plot.cvpensynth()], [placebo_test()], [simulate_data()]
 #'
 #' @importFrom utils capture.output
 #'
-#' @examples
-#' set.seed(45)
-#' N_covar <- 7
-#' N_donor <- 50
-#' N_target <- 12
-#'
-#' w  <- runif(N_donor)
-#' w[5:N_donor] <- 0
-#' w  <- w / sum(w)
-#' v  <- rep(1, N_covar)
-#' X0 <- matrix(rnorm(N_covar*N_donor), N_covar)
-#' X1 <- X0%*%w
-#' Z0 <- matrix(rnorm(N_target*N_donor), N_target)
-#' Z1 <- Z0%*%w
-#'
-#' res <- cv_pensynth(X1, X0, Z1, Z0, v)
-#' plot(res)
+#' @example R/examples/example_cv_pensynth.R
 #'
 #' @export
 cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabel::clarabel_control(),

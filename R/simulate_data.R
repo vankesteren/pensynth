@@ -24,11 +24,15 @@
 #'
 #' @importFrom stats rnorm runif
 #'
+#' @example R/examples/example_simulate.R
+#'
 #' @details
 #' Note that treatment effect can be a single number, but
 #' it may also be a vector of length N_post, indicating
 #' the effect size at each post-intervention measurement
 #' occasion.
+#'
+#' @seealso [pensynth()], [cv_pensynth()], [placebo_test()]
 #'
 #' @export
 simulate_data <- function(

@@ -51,23 +51,10 @@ The minimum lambda is always 1e-11, the max lambda is determined by the data.
 }
 \examples{
 set.seed(45)
-N_covar <- 7
-N_donor <- 50
-N_target <- 12
-
-w  <- runif(N_donor)
-w[5:N_donor] <- 0
-w  <- w / sum(w)
-v  <- rep(1, N_covar)
-X0 <- matrix(rnorm(N_covar*N_donor), N_covar)
-X1 <- X0\%*\%w
-Z0 <- matrix(rnorm(N_target*N_donor), N_target)
-Z1 <- Z0\%*\%w
-
-res <- cv_pensynth(X1, X0, Z1, Z0, v)
+dat <- simulate_data()
+res <- with(dat, cv_pensynth(X1, X0, Z1, Z0))
 plot(res)
-
 }
 \seealso{
-\code{\link[=pensynth]{pensynth()}} \code{\link[=plot.cvpensynth]{plot.cvpensynth()}} \code{\link[=placebo_test]{placebo_test()}}
+\code{\link[=pensynth]{pensynth()}}, \code{\link[=plot.cvpensynth]{plot.cvpensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data]{simulate_data()}}
 }

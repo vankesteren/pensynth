@@ -32,28 +32,9 @@
 #'
 #' @importFrom utils capture.output
 #'
-#' @examples
-#' # generate some data
-#' X0 <- matrix(
-#'   c(1, 1.3,
-#'     0.5, 1.8,
-#'     1.1, 2.4,
-#'     1.8, 1.8,
-#'     1.3, 1.8), 2)
-#' X1 <- matrix(c(0.8, 1.65), 2)
-#' v <- rep(1, 2)
+#' @example R/examples/example_pensynth.R
 #'
-#' # run classic synthetic control (no penalization)
-#' res <- pensynth(X1, X0, v)
-#' plot(t(X0))
-#' points(t(X1), pch = 2)
-#' points(t(X0%*%res$w), pch = 3)
-#'
-#' # run synthetic control with penalty
-#' res <- pensynth(X1, X0, v, lambda = 0.5)
-#' points(t(X0 %*% res$w), pch = 4)
-#'
-#' @seealso [cv_pensynth()] [Synth::synth()]
+#' @seealso [cv_pensynth()], [placebo_test()], [simulate_data()], [Synth::synth()]
 #'
 #' @export
 pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {

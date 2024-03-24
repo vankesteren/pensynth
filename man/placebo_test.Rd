@@ -37,10 +37,33 @@ method is performed multiple times, treating each donor as the
 treated unit and the treated unit with the remaining donors as
 the donor units.
 }
+\examples{
+set.seed(45)
+
+# simulate data with an effect of 0.8 SD
+dat <- simulate_data(treatment_effect = .8)
+
+# fit a model
+fit <- pensynth(dat$X1, dat$X0, lambda = 1e-5)
+
+# Perform placebo test
+test <- placebo_test(fit, dat$Y1, dat$Y0)
+plot(test)
+abline(h = .8, lty = 2)
+legend("bottomright", lty = 2, legend = "true effect")
+
+# compute a pseudo p-value based on ATE in
+# the post-intervention time period
+ref_dist <- stats::ecdf(test$ATE0)
+1 - ref_dist(test$ATE1)
+}
 \references{
 Abadie, A., Diamond, A., & Hainmueller, J. (2010).
 Synthetic control methods for comparative case studies:
 Estimating the effect of California’s tobacco control program.
 Journal of the American statistical Association, 105(490),
 493-505.
+}
+\seealso{
+\code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=plot.pensynthtest]{plot.pensynthtest()}}
 }
