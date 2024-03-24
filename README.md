@@ -13,6 +13,7 @@ The goal of `pensynth` is to make it easier to perform penalized synthetic contr
 - Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver.
 - Built-in hold-out validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for hold-out validated penalized synthetic controls.
+- Built-in methods for printing, plotting, and performing a placebo permutation test of the ATE
 
 NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementation). Additionally, currently only a single treated unit is supported. 
 
@@ -64,39 +65,48 @@ The first term in the objective is the same (up to variable weights) as the orig
 
 ## Example
 
-``` r
+```r
 library(pensynth)
 set.seed(45)
 
-# Generate some data
-N_covar  <- 7   # number of covariates
-N_donor  <- 50  # number of donor units
-N_target <- 12 # pre-intervention time series length
-w  <- runif(N_donor) # true unit weights
-w[5:N_donor] <- 0    # set most to 0 (sparse)
-w  <- w / sum(w)     # normalize unit weights
-v  <- rep(1, N_covar) # equal variable weights
-
-# Create the synthetic control data matrices
-# following the Synth::synth() notation
-X0 <- matrix(rnorm(N_covar*N_donor), N_covar)  
-X1 <- X0 %*% w
-Z0 <- matrix(rnorm(N_target*N_donor), N_target)
-Z1 <- Z0 %*% w
+# Generate some data with a 0.8SD effect
+dat <- simulate_data(treatment_effect = 0.8)
 
 # Run penalized synthetic control
 # estimate lambda using pre-intervention timeseries MSE
-res <- cv_pensynth(X1, X0, v, Z1, Z0)
-plot_path(res)
+fit <- cv_pensynth(dat$X1, dat$X0, dat$Z1, dat$Z0)
+plot(fit)
 ```
 ![cvplot](img/cvplot.png)
 
 ```r
-# Compare final weights to true weights
-plot(w, main = "Estimated and true unit weights", xlab = "Donor unit", ylab = "Weight")
-points(res$w_opt, pch = 3)
+# Compute average treatment effect post-intervention
+Y1_synth <- predict(fit, dat$Y0)
+mean(dat$Y1 - Y1_synth)
 ```
-![wplot](img/weights.png)
+
+```
+#> [1] 0.8863562
+```
+
+```r
+# Perform a placebo permutation test
+fit_test <- placebo_test(fit, dat$Y1, dat$Y0)
+plot(fit_test)
+abline(h = 0.8, lty = 2)
+legend("bottomright", lty = 2, legend = "True effect")
+```
+![testplot](img/testplot.png)
+
+
+```r
+# compute a placebo-p-value
+1 - ecdf(fit_test$ATE0)(fit_test$ATE1)
+```
+
+```
+#> [1] 0.04
+```
 
 # References
 
