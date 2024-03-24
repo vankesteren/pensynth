@@ -20,6 +20,10 @@
 #' - ATE1, the estimated ATE of the treated unit
 #' - ATE0, the estimated ATE of the donor units
 #'
+#' @seealso [pensynth()], [cv_pensynth()], [plot.pensynthtest()]
+#'
+#' @example R/examples/example_placebo_test.R
+#'
 #' @references Abadie, A., Diamond, A., & Hainmueller, J. (2010).
 #' Synthetic control methods for comparative case studies:
 #' Estimating the effect of California’s tobacco control program.
@@ -42,6 +46,7 @@ placebo_test.pensynth <- function(object, Y1, Y0) {
   ps_list <- lapply(
     1:N_donors,
     function(n) {
+      cat("\rProgress: [", n, "/", N_donors, "]")
       # get X1 and X0 from original environment
       new_X1 <- eval(getCall(object)$X0)[, n, drop = FALSE]
       new_X0 <- cbind(
@@ -51,6 +56,7 @@ placebo_test.pensynth <- function(object, Y1, Y0) {
       update(object = object, X1 = new_X1, X0 = new_X0)
     }
   )
+  cat("\n")
 
   # create prediction for each iter
   null <- sapply(
@@ -86,6 +92,7 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
   ps_list <- lapply(
     1:N_donors,
     function(n) {
+      cat("\rProgress: [", n, "/", N_donors, "]")
       # get X1 and X0 from original environment
       new_X1 <- eval(getCall(object)$X0)[, n, drop = FALSE]
       new_Z1 <- eval(getCall(object)$Z0)[, n, drop = FALSE]
@@ -100,6 +107,7 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
       update(object = object, X1 = new_X1, X0 = new_X0, Z1 = new_Z1, Z0 = new_Z0)
     }
   )
+  cat("\n")
 
   # create prediction for each iter
   null <- sapply(
