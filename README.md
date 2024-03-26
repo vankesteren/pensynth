@@ -65,6 +65,8 @@ The first term in the objective is the same (up to variable weights) as the orig
 
 ## Example
 
+Here, we perform pensynth with a simple simulated dataset.
+
 ```r
 library(pensynth)
 set.seed(45)
@@ -74,20 +76,28 @@ dat <- simulate_data(treatment_effect = 0.8)
 
 # Run penalized synthetic control
 # estimate lambda using pre-intervention timeseries MSE
-fit <- cv_pensynth(dat$X1, dat$X0, dat$Z1, dat$Z0)
+fit <- cv_pensynth(
+  X1 = dat$X1, # Treated unit covariates
+  X0 = dat$X0, # Donor unit covariates
+  Z1 = dat$Z1, # Treated unit hold-out values (pre-intervention outcome)
+  Z0 = dat$Z0  # Donor unit hold-out values
+)
 plot(fit)
 ```
 ![cvplot](img/cvplot.png)
 
+We can then use the `predict()` method to compute the synthetic control
 ```r
 # Compute average treatment effect post-intervention
-Y1_synth <- predict(fit, dat$Y0)
+Y1_synth <- predict(
+  object = fit, 
+  newdata = dat$Y0 # Donor units post-intervention outcome
+)
 mean(dat$Y1 - Y1_synth)
-```
-
-```
 #> [1] 0.8863562
 ```
+
+We can use a placebo test (a kind of permutation test) to compare the effect to a reference distribution. This applies the penalized synthetic control method to each of the donors and computes the estimated treatment effect.
 
 ```r
 # Perform a placebo permutation test
@@ -98,13 +108,10 @@ legend("bottomright", lty = 2, legend = "True effect")
 ```
 ![testplot](img/testplot.png)
 
-
+Lastly, we can compute a kind of p-value using the placebo-permuted ATE as reference distribution
 ```r
 # compute a placebo-p-value
 1 - ecdf(fit_test$ATE0)(fit_test$ATE1)
-```
-
-```
 #> [1] 0.04
 ```
 
