@@ -1,0 +1,21 @@
+set.seed(45)
+dat <- simulate_data(treatment_effect = .8)
+attach(dat)
+test_that("Placebo test detects an effect", {
+  fit <- pensynth(X1, X0, lambda = 4e-8)
+  out <- capture_output(res <- placebo_test(fit, Y1, Y0))
+  expect_no_error(plot(res))
+  dst <- ecdf(res$ATE0)
+  expect_lt(1 - dst(res$ATE1), 0.05)
+})
+detach(dat)
+
+set.seed(45)
+dat <- simulate_data(treatment_effect = .8, N_donor = 20)
+attach(dat)
+test_that("Placebo test with cvpensynth works", {
+  fit <- cv_pensynth(X1, X0, Z1, Z0)
+  out <- capture_output(res <- placebo_test(fit, Y1, Y0))
+  expect_no_error(plot(res))
+})
+detach(dat)
