@@ -108,7 +108,7 @@ legend("bottomright", lty = 2, legend = "True effect")
 ```
 ![testplot](img/testplot.png)
 
-Lastly, we can compute a kind of p-value using the placebo-permuted ATE as reference distribution
+Finally, we can compute a kind of p-value using the placebo-permuted ATE as reference distribution
 ```r
 # compute a placebo-p-value
 1 - ecdf(fit_test$ATE0)(fit_test$ATE1)
