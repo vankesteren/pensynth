@@ -13,7 +13,7 @@ The goal of `pensynth` is to make it easier to perform penalized synthetic contr
 - Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver.
 - Built-in hold-out validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for hold-out validated penalized synthetic controls.
-- Built-in methods for printing, plotting, and performing a placebo permutation test of the ATE
+- Placebo permutation testing of the post-intervention average treatment effect (ATE)
 
 NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementation). Additionally, currently only a single treated unit is supported. 
 
