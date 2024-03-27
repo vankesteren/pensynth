@@ -7,7 +7,7 @@
 pensynth(
   X1,
   X0,
-  v,
+  v = 1,
   lambda = 0,
   opt_pars = clarabel::clarabel_control(),
   standardize = TRUE
@@ -18,7 +18,7 @@ pensynth(
 
 \item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
 
-\item{v}{\verb{N_covars vector} of variable weights}
+\item{v}{\verb{N_covars vector} of variable weights (default 1)}
 
 \item{lambda}{\code{numeric} penalization parameter}
 
@@ -57,18 +57,23 @@ X0 <- matrix(
     1.8, 1.8,
     1.3, 1.8), 2)
 X1 <- matrix(c(0.8, 1.65), 2)
-v <- rep(1, 2)
 
 # run classic synthetic control (no penalization)
-res <- pensynth(X1, X0, v)
-plot(t(X0))
+res <- pensynth(X1, X0)
+
+# plot donor units in covariate space
+plot(t(X0), asp = 1, xlab = "X1", ylab = "X2",
+     main = "Covariate space plot")
+# add the treated unit
 points(t(X1), pch = 2)
+# add the synthetic control
 points(t(X0\%*\%res$w), pch = 3)
 
 # run synthetic control with penalty
-res <- pensynth(X1, X0, v, lambda = 0.5)
+res <- pensynth(X1, X0, lambda = 0.5)
+# the resulting synthetic control is
+# biased towards its closest neighbours
 points(t(X0 \%*\% res$w), pch = 4)
-
 }
 \references{
 Abadie, A., & L’Hour, J. (2021).
@@ -76,5 +81,5 @@ A penalized synthetic control estimator for disaggregated data.
 \emph{Journal of the American Statistical Association, 116}(536), 1817-1834.
 }
 \seealso{
-\code{\link[=cv_pensynth]{cv_pensynth()}} \code{\link[Synth:synth]{Synth::synth()}}
+\code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data]{simulate_data()}}, \code{\link[Synth:synth]{Synth::synth()}}
 }

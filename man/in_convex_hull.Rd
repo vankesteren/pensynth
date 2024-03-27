@@ -15,7 +15,8 @@ in_convex_hull(X1, X0, ...)
 }
 \value{
 \code{bool} whether the treated unit is in the convex hull of
-the donor units.
+the donor units. \code{NA} if this cannot be determined. Vector if X1
+has multiple columns.
 }
 \description{
 This function finds out if the treated unit is in the convex hull
@@ -31,4 +32,9 @@ min q'w s.t. Aw = b
 with w constrained to be above 0 and sum to 1, the feasibility
 of this linear program directly corresponds to whether the treated
 is in the convex hull
+
+When the treated unit very close to the boundary of the convex hull
+this method usually cannot determine this exactly and this function
+may return \code{NA} with the warning "Solver terminated due to lack of
+progress"
 }

@@ -7,7 +7,7 @@
 #'
 #' @param X1 `N_covars by 1 matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
-#' @param v `N_covars vector` of variable weights
+#' @param v `N_covars vector` of variable weights (default 1)
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
@@ -32,31 +32,12 @@
 #'
 #' @importFrom utils capture.output
 #'
-#' @examples
-#' # generate some data
-#' X0 <- matrix(
-#'   c(1, 1.3,
-#'     0.5, 1.8,
-#'     1.1, 2.4,
-#'     1.8, 1.8,
-#'     1.3, 1.8), 2)
-#' X1 <- matrix(c(0.8, 1.65), 2)
-#' v <- rep(1, 2)
+#' @example R/examples/example_pensynth.R
 #'
-#' # run classic synthetic control (no penalization)
-#' res <- pensynth(X1, X0, v)
-#' plot(t(X0))
-#' points(t(X1), pch = 2)
-#' points(t(X0%*%res$w), pch = 3)
-#'
-#' # run synthetic control with penalty
-#' res <- pensynth(X1, X0, v, lambda = 0.5)
-#' points(t(X0 %*% res$w), pch = 4)
-#'
-#' @seealso [cv_pensynth()] [Synth::synth()]
+#' @seealso [cv_pensynth()], [placebo_test()], [simulate_data()], [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
+pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -107,5 +88,47 @@ pensynth <- function(X1, X0, v, lambda = 0, opt_pars = clarabel::clarabel_contro
   result$status <- names(clarabel::solver_status_descriptions()[result$status])
 
 
-  return(list(w = result$x, solution = result))
+  return(structure(
+    .Data = list(
+      w = result$x,
+      solution = result,
+      call = match.call()
+    ),
+    class = "pensynth"
+  ))
+}
+
+#' Print pensynth model
+#'
+#' @param x a pensynth object
+#' @param ... ignored
+#'
+#' @method print pensynth
+#'
+#' @export
+print.pensynth <- function(x, ...) {
+  cat("Pensynth model\n--------------\n")
+  cat("- call: ")
+  print(x$call)
+  cat("- solution:", x$solution$status, "\n")
+  cat("- w:", round(x$w, 3)[1:min(length(x$w), 8)])
+  if(length(x$w) > 8) cat("...")
+  return(invisible(x))
+}
+
+
+#' Create prediction from pensynth model
+#'
+#' @param object a fitted pensynth model
+#' @param newdata N_values * N_donors matrix of
+#' values for the donor units.
+#' @param ... ignored
+#'
+#' @importFrom stats predict
+#'
+#' @method predict pensynth
+#'
+#' @export
+predict.pensynth <- function(object, newdata, ...) {
+  return(newdata %*% object$w)
 }

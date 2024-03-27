@@ -13,6 +13,7 @@ The goal of `pensynth` is to make it easier to perform penalized synthetic contr
 - Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver.
 - Built-in hold-out validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for hold-out validated penalized synthetic controls.
+- Built-in methods for printing, plotting, and performing a placebo permutation test of the ATE
 
 NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementation). Additionally, currently only a single treated unit is supported. 
 
@@ -64,39 +65,55 @@ The first term in the objective is the same (up to variable weights) as the orig
 
 ## Example
 
-``` r
+Here, we perform pensynth with a simple simulated dataset.
+
+```r
 library(pensynth)
 set.seed(45)
 
-# Generate some data
-N_covar  <- 7   # number of covariates
-N_donor  <- 50  # number of donor units
-N_target <- 12 # pre-intervention time series length
-w  <- runif(N_donor) # true unit weights
-w[5:N_donor] <- 0    # set most to 0 (sparse)
-w  <- w / sum(w)     # normalize unit weights
-v  <- rep(1, N_covar) # equal variable weights
-
-# Create the synthetic control data matrices
-# following the Synth::synth() notation
-X0 <- matrix(rnorm(N_covar*N_donor), N_covar)  
-X1 <- X0 %*% w
-Z0 <- matrix(rnorm(N_target*N_donor), N_target)
-Z1 <- Z0 %*% w
+# Generate some data with a 0.8SD effect
+dat <- simulate_data(treatment_effect = 0.8)
 
 # Run penalized synthetic control
 # estimate lambda using pre-intervention timeseries MSE
-res <- cv_pensynth(X1, X0, v, Z1, Z0)
-plot_path(res)
+fit <- cv_pensynth(
+  X1 = dat$X1, # Treated unit covariates
+  X0 = dat$X0, # Donor unit covariates
+  Z1 = dat$Z1, # Treated unit hold-out values (pre-intervention outcome)
+  Z0 = dat$Z0  # Donor unit hold-out values
+)
+plot(fit)
 ```
 ![cvplot](img/cvplot.png)
 
+We can then use the `predict()` method to compute the synthetic control
 ```r
-# Compare final weights to true weights
-plot(w, main = "Estimated and true unit weights", xlab = "Donor unit", ylab = "Weight")
-points(res$w_opt, pch = 3)
+# Compute average treatment effect post-intervention
+Y1_synth <- predict(
+  object = fit, 
+  newdata = dat$Y0 # Donor units post-intervention outcome
+)
+mean(dat$Y1 - Y1_synth)
+#> [1] 0.8863562
 ```
-![wplot](img/weights.png)
+
+We can use a placebo test (a kind of permutation test) to compare the effect to a reference distribution. This applies the penalized synthetic control method to each of the donors and computes the estimated treatment effect.
+
+```r
+# Perform a placebo permutation test
+fit_test <- placebo_test(fit, dat$Y1, dat$Y0)
+plot(fit_test)
+abline(h = 0.8, lty = 2)
+legend("bottomright", lty = 2, legend = "True effect")
+```
+![testplot](img/testplot.png)
+
+Lastly, we can compute a kind of p-value using the placebo-permuted ATE as reference distribution
+```r
+# compute a placebo-p-value
+1 - ecdf(fit_test$ATE0)(fit_test$ATE1)
+#> [1] 0.04
+```
 
 # References
 

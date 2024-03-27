@@ -6,9 +6,9 @@
 #'
 #' @param X1 `N_covars by 1 matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
-#' @param v `N_covars vector` of variable weights
 #' @param Z1 `N_targets by 1 matrix` of treated unit hold-out outcome
 #' @param Z0 `N_targets by N_donors matrix` of donor unit hold-out outcome
+#' @param v `N_covars vector` of variable weights, default 1
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
@@ -21,31 +21,15 @@
 #' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
 #' the solvers.
 #'
-#' @seealso [pensynth()] [plot_path()]
+#' @seealso [pensynth()], [plot.cvpensynth()], [placebo_test()], [simulate_data()]
 #'
 #' @importFrom utils capture.output
 #'
-#' @examples
-#' set.seed(45)
-#' N_covar <- 7
-#' N_donor <- 50
-#' N_target <- 12
-#'
-#' w  <- runif(N_donor)
-#' w[5:N_donor] <- 0
-#' w  <- w / sum(w)
-#' v  <- rep(1, N_covar)
-#' X0 <- matrix(rnorm(N_covar*N_donor), N_covar)
-#' X1 <- X0%*%w
-#' Z0 <- matrix(rnorm(N_target*N_donor), N_target)
-#' Z1 <- Z0%*%w
-#'
-#' res <- cv_pensynth(X1, X0, v, Z1, Z0)
-#' plot_path(res)
+#' @example R/examples/example_cv_pensynth.R
 #'
 #' @export
-cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::clarabel_control(), standardize = TRUE,
-                        return_solver_info = FALSE) {
+cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabel::clarabel_control(),
+                        standardize = TRUE, return_solver_info = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -115,7 +99,8 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
       l_opt    = lseq[which.min(e_path)],
       lseq     = lseq,
       w_path   = w_path,
-      mse_path = e_path
+      mse_path = e_path,
+      call     = match.call()
   )
 
   # If we've been requested to return info about the solving process, do so
@@ -140,29 +125,51 @@ cv_pensynth <- function(X1, X0, v, Z1, Z0, nlambda = 100, opt_pars = clarabel::c
   return(out_obj)
 }
 
+#' Print cvpensynth model
+#'
+#' @param x a cvpensynth object
+#' @param ... ignored
+#'
+#' @method print cvpensynth
+#'
+#' @export
+print.cvpensynth <- function(x, ...) {
+  cat("Hold-out validated pensynth model\n---------------------------------\n")
+  cat("- call: ")
+  print(x$call)
+  cat("- lambda:", x$l_opt, "\n")
+  cat("- mse:", round(min(x$mse), 3), "\n")
+  cat("- w:", round(x$w_opt, 3)[1:min(length(x$w_opt), 8)])
+  if(length(x$w_opt) > 8) cat("...")
+
+  return(invisible(x))
+}
+
 #' Plotting for hold-out validated penalized synthetic control objects
 #'
 #' Displays a mean squared error curve and weights curve as a function
 #' of lambda, the penalization parameter.
 #'
-#' @param object a `cvpensynth` output object
+#' @param x a `cvpensynth` output object
 #' @param ... additional arguments passed to `plot()`
 #'
 #' @return No return value, called for side effects
 #'
 #' @seealso [cv_pensynth()] [pensynth()]
 #'
-#' @importFrom graphics lines par
+#' @importFrom graphics lines par abline
+#'
+#' @method plot cvpensynth
 #'
 #' @export
-plot_path <- function(object, ...) {
-  nw <- nrow(object$w_path)
+plot.cvpensynth <- function(x, ...) {
+  nw <- nrow(x$w_path)
   mfrow_old <- par("mfrow")
   on.exit(par(mfrow = mfrow_old))
   par(mfrow = c(2, 1))
   plot(
-    object$lseq,
-    object$mse_path,
+    x$lseq,
+    x$mse_path,
     log = "x",
     ylab = "MSE",
     xlab = "Lambda",
@@ -170,19 +177,21 @@ plot_path <- function(object, ...) {
     main = "Mean squared prediction errors",
     ...
   )
+  abline(v = x$l_opt, col = "grey")
   plot(
-    object$lseq,
-    object$w_path[1, ],
+    x$lseq,
+    x$w_path[1, ],
     log = "x",
     ylab = "Weight",
     xlab = "Lambda",
     type = "l",
     ylim = c(0, 1),
-    main = "Weights",
+    main = "Unit weights",
     ...
   )
+  abline(v = x$l_opt, col = "grey")
   for (i in 2:nw) {
-    lines(object$lseq, object$w_path[i, ], lty = i)
+    lines(x$lseq, x$w_path[i, ], lty = i)
   }
 }
 
@@ -205,7 +214,7 @@ plot_path <- function(object, ...) {
 #' territory. This formula ensures this for a wide range
 #' of input parameters.
 #'
-#' @seealso [plot_path()]
+#' @seealso [plot.cvpensynth()]
 #'
 #' @return lambda sequence as a numeric vector
 #'
@@ -214,4 +223,26 @@ lambda_sequence <- function(X1VX0, Delta, nlambda) {
   lmin <- 1e-11
   lmax <- sum(abs(X1VX0/Delta))
   return(exp(seq(log(lmin), log(lmax), len = nlambda)))
+}
+
+
+#' Create prediction from pensynth model
+#'
+#' @param object a fitted pensynth model
+#' @param newdata N_values * N_donors matrix of
+#' values for the donor units.
+#' @param lambda desired lambda value
+#' @param ... ignored
+#'
+#' @importFrom stats predict approx
+#'
+#' @method predict cvpensynth
+#'
+#' @export
+predict.cvpensynth <- function(object, newdata, lambda, ...) {
+  if (missing(lambda)) return(newdata %*% object$w_opt)
+  # find lambda idx
+  lambda_idx <- which.min(abs(log(object[["lseq"]]) - log(lambda)))
+  message("Closest lambda: ", object[["lseq"]][lambda_idx])
+  return(newdata %*% object[["w_path"]][,lambda_idx])
 }

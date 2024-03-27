@@ -31,6 +31,6 @@ territory. This formula ensures this for a wide range
 of input parameters.
 }
 \seealso{
-\code{\link[=plot_path]{plot_path()}}
+\code{\link[=plot.cvpensynth]{plot.cvpensynth()}}
 }
 \keyword{internal}

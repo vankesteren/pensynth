@@ -13,7 +13,7 @@ Z0 <- matrix(rnorm(N_target*N_donor), N_target)
 Z1 <- Z0%*%w
 
 test_that("CV pensynth works", {
-  res <- cv_pensynth(X1, X0, v, Z1, Z0)
+  res <- cv_pensynth(X1, X0, Z1, Z0, v)
   expect_lt(crossprod(res$w_opt - w), 5e-3)
   expect_gt(max(res$w_path[,100]), 0.999)
   expect_lt(max(res$w_path[,1]), 0.5)
