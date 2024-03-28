@@ -1,5 +1,5 @@
 # simulate data with an effect of 0.8 SD
-dat <- simulate_data(treatment_effect = 0.8)
+dat <- simulate_data(treatment_effect = 0.8, ar = 0.7)
 
 plot(
   NA,

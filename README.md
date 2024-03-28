@@ -72,7 +72,7 @@ library(pensynth)
 set.seed(45)
 
 # Generate some data with a 0.8SD effect
-dat <- simulate_data(treatment_effect = 0.8)
+dat <- simulate_data(treatment_effect = 1)
 ```
 ![dataplot](img/dataplot.png)
 
@@ -97,7 +97,7 @@ Y1_synth <- predict(
   newdata = dat$Y0 # Donor units post-intervention outcome
 )
 mean(dat$Y1 - Y1_synth)
-#> [1] 0.8863562
+#> [1] 1.114145
 ```
 
 We can use a placebo test (a kind of permutation test) to compare the effect to a reference distribution. This applies the penalized synthetic control method to each of the donors, including hold-out validation, and then computes the estimated treatment effect.
@@ -106,7 +106,7 @@ We can use a placebo test (a kind of permutation test) to compare the effect to 
 # Perform a placebo permutation test
 fit_test <- placebo_test(fit, dat$Y1, dat$Y0)
 plot(fit_test)
-abline(h = 0.8, lty = 2)
+abline(h = 1, lty = 2)
 legend("bottomright", lty = 2, legend = "True effect")
 ```
 ![testplot](img/testplot.png)

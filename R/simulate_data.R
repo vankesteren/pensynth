@@ -44,16 +44,45 @@ simulate_data <- function(
     treatment_effect = 1,
     sd_resid_X1 = 0.1,
     sd_resid_Z1 = 0.1,
-    sd_resid_Y1 = 0.1
+    sd_resid_Y1 = 0.1,
+    ar = 0.4
   ) {
   w  <- runif(N_donor)
   if (N_nonzero < N_donor) w[(N_nonzero + 1):N_donor] <- 0
   w  <- w / sum(w)
   X0 <- matrix(rnorm(N_covar * N_donor), N_covar)
   X1 <- X0 %*% w + rnorm(N_covar, sd = sd_resid_X1)
-  Z0 <- matrix(rnorm(N_pre * N_donor), N_pre)
+  if (ar != 0) {
+    O0 <- sapply(1:N_donor, function(i) rarnorm(N_pre + N_post, ar = ar))
+    Z0 <- O0[1:N_pre,]
+    Y0 <- O0[(N_pre + 1):(N_pre + N_post),]
+  } else {
+    Z0 <- matrix(rnorm(N_pre * N_donor), N_pre)
+    Y0 <- matrix(rnorm(N_post * N_donor), N_post)
+  }
   Z1 <- Z0 %*% w + rnorm(N_pre, sd = sd_resid_Z1)
-  Y0 <- matrix(rnorm(N_post * N_donor), N_post)
   Y1 <- Y0 %*% w + treatment_effect + rnorm(N_post, sd = sd_resid_Y1)
   list(w = w, X0 = X0, X1 = X1, Z0 = Z0, Z1 = Z1, Y0 = Y0, Y1 = Y1)
+}
+
+
+#' Generate ar process with given marginal mean and sd
+#'
+#' The marginal distribution of the ar process is
+#' univariate normal with the specified mu and sd
+#'
+#' @param n number of samples / time points
+#' @param mu marginal mean
+#' @param sd marginal standard deviation
+#'
+#' @return vector of ar values
+rarnorm <- function(n, mu = 0, sd = 1, ar = 0.1) {
+  stopifnot(abs(ar) < 1)
+  stopifnot((ar*sd)^2 < sd^2)
+  x <- numeric(n)
+  x[1] <- rnorm(1, mu, sd)
+  for (i in 2:n) {
+    x[i] <- (x[i-1] - mu) * ar + rnorm(1, mu, sqrt(sd^2 - (ar*sd)^2))
+  }
+  return(x)
 }
