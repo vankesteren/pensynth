@@ -13,14 +13,23 @@
 #'
 #' @importFrom stats getCall update
 #'
-#' @return A list with two elements
+#' @details
+#' Note that this function updates the original call in order to
+#' re-estimate the synthetic control on the permuted data.
+#' Ensure that the data is available to the placebo test function
+#' (i.e., avoid complex environment functions such as `with()`),
+#' and ensure that the data does not change between estimating the
+#' original object and calling this function.
+#'
+#'
+#' @returns A list with two elements
 #' - E1, the treated unit effect, computed as `Y1 - Y0 %*% w`
 #' - E0, the donor unit effects, computed in the same way but
 #' using the permutation test's weights.
 #' - ATE1, the estimated ATE of the treated unit
 #' - ATE0, the estimated ATE of the donor units
 #'
-#' @seealso [pensynth()], [cv_pensynth()], [plot.pensynthtest()]
+#' @seealso [pensynth()], [cv_pensynth()], [plot.pensynthtest()], [stats::update()]
 #'
 #' @example R/examples/example_placebo_test.R
 #'
@@ -144,6 +153,8 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
 #' @importFrom graphics legend
 #'
 #' @seealso [base::plot()]
+#'
+#' @returns No return value, called for side effects
 #'
 #' @method plot pensynthtest
 #'

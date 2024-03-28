@@ -11,6 +11,9 @@
 
 \item{...}{additional parameters passed to \code{plot}}
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Plotting the reference distribution and the
 estimated treatement effect for the treated unit

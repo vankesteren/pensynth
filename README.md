@@ -10,16 +10,16 @@ https://www.r-pkg.org/badges/version/pensynth)](https://cran.r-project.org/packa
 The goal of `pensynth` is to make it easier to perform penalized synthetic control in the spirit of [Abadie & L'Hour (2021)](https://doi.org/10.1080/01621459.2021.1971535). 
 
 ## Features
-- Faster than the original `Synth::synth` implementation for "vanilla" synthetic controls, even for large donor pools, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver.
+- Faster and more memory-efficient than the original `Synth::synth` implementation for synthetic controls, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver with sparse matrices.
 - Built-in hold-out validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for hold-out validated penalized synthetic controls.
 - Placebo permutation testing of the post-intervention average treatment effect (ATE)
 
-NB: in this implementation, variable weights have to be pre-specified (unlike in the original synthetic control implementation). Additionally, currently only a single treated unit is supported. 
+> NB: pensynth estimates unit weights, but variable weights have to be pre-specified.
 
 ## Installation
 
-I recommend installing `pensynth` from r-universe like so:
+I recommend installing the latest version of `pensynth` from [r-universe](https://vankesteren.r-universe.dev/pensynth) like so:
 
 ```r
 install.packages("pensynth", repos = c("https://vankesteren.r-universe.dev", "https://cloud.r-project.org"))
@@ -31,7 +31,7 @@ The package is also on CRAN, so it can be installed directly from there too.
 install.packages("pensynth")
 ```
 
-The latest development version can also be installed directly from this repository:
+The latest development version can also be installed from this repository:
 
 ```r
 remotes::install_github("vankesteren/pensynth")
@@ -73,7 +73,10 @@ set.seed(45)
 
 # Generate some data with a 0.8SD effect
 dat <- simulate_data(treatment_effect = 0.8)
+```
+![dataplot](img/dataplot.png)
 
+```r
 # Run penalized synthetic control
 # estimate lambda using pre-intervention timeseries MSE
 fit <- cv_pensynth(
@@ -97,7 +100,7 @@ mean(dat$Y1 - Y1_synth)
 #> [1] 0.8863562
 ```
 
-We can use a placebo test (a kind of permutation test) to compare the effect to a reference distribution. This applies the penalized synthetic control method to each of the donors and computes the estimated treatment effect.
+We can use a placebo test (a kind of permutation test) to compare the effect to a reference distribution. This applies the penalized synthetic control method to each of the donors, including hold-out validation, and then computes the estimated treatment effect.
 
 ```r
 # Perform a placebo permutation test

@@ -23,7 +23,9 @@
 #' may return `NA` with the warning "Solver terminated due to lack of
 #' progress"
 #'
-#' @return `bool` whether the treated unit is in the convex hull of
+#' @example R/examples/example_convex_hull.R
+#'
+#' @returns `bool` whether the treated unit is in the convex hull of
 #' the donor units. `NA` if this cannot be determined. Vector if X1
 #' has multiple columns.
 #'

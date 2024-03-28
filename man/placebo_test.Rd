@@ -37,6 +37,14 @@ method is performed multiple times, treating each donor as the
 treated unit and the treated unit with the remaining donors as
 the donor units.
 }
+\details{
+Note that this function updates the original call in order to
+re-estimate the synthetic control on the permuted data.
+Ensure that the data is available to the placebo test function
+(i.e., avoid complex environment functions such as \code{with()}),
+and ensure that the data does not change between estimating the
+original object and calling this function.
+}
 \examples{
 set.seed(45)
 
@@ -65,5 +73,5 @@ Journal of the American statistical Association, 105(490),
 493-505.
 }
 \seealso{
-\code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=plot.pensynthtest]{plot.pensynthtest()}}
+\code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=plot.pensynthtest]{plot.pensynthtest()}}, \code{\link[stats:update]{stats::update()}}
 }

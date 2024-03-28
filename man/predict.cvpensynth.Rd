@@ -2,20 +2,30 @@
 % Please edit documentation in R/cv_pensynth.R
 \name{predict.cvpensynth}
 \alias{predict.cvpensynth}
-\title{Create prediction from pensynth model}
+\title{Create prediction from cvpensynth model}
 \usage{
 \method{predict}{cvpensynth}(object, newdata, lambda, ...)
 }
 \arguments{
-\item{object}{a fitted pensynth model}
+\item{object}{a fitted cvpensynth model}
 
 \item{newdata}{N_values * N_donors matrix of
 values for the donor units.}
 
-\item{lambda}{desired lambda value}
+\item{lambda}{desired lambda value (defaults to optimal lambda)}
 
 \item{...}{ignored}
 }
+\value{
+a matrix (column vector) of predicted values
+}
 \description{
-Create prediction from pensynth model
+Matrix multiplies the values in \code{newdata} by the unit weights
+extracted from the cvpensynth object to produce predicted
+values.
+}
+\details{
+For a chosen lambda that is not in the list of tested lambdas
+in the cvpensynth object, the closest lambda (on the log scale)
+will be chosen.
 }

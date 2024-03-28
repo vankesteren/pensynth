@@ -7,13 +7,18 @@
 \method{predict}{pensynth}(object, newdata, ...)
 }
 \arguments{
-\item{object}{a fitted pensynth model}
+\item{object}{a fitted cvpensynth model}
 
 \item{newdata}{N_values * N_donors matrix of
 values for the donor units.}
 
 \item{...}{ignored}
 }
+\value{
+a matrix (column vector) of predicted values
+}
 \description{
-Create prediction from pensynth model
+Matrix multiplies the values in \code{newdata} by the unit weights
+extracted from the pensynth object to produce predicted
+values.
 }

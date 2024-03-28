@@ -11,6 +11,9 @@
 
 \item{...}{ignored}
 }
+\value{
+the cvpensynth object, invisibly
+}
 \description{
 Print cvpensynth model
 }

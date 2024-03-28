@@ -11,6 +11,9 @@ standardize_X(X1, X0)
 
 \item{X0}{the X0 matrix}
 }
+\value{
+a list with X1 and X0 standardized.
+}
 \description{
 The default implementation of synthetic control first
 scales the X matrices using the mean and standard

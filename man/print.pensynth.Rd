@@ -11,6 +11,9 @@
 
 \item{...}{ignored}
 }
+\value{
+the pensynth object, invisibly
+}
 \description{
 Print pensynth model
 }

@@ -17,7 +17,7 @@
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-11, the max lambda is determined by the data.
 #'
-#' @return A list of the lambda sequence, the associated weights, and the mses. If
+#' @returns A list of the lambda sequence, the associated weights, and the mses. If
 #' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
 #' the solvers.
 #'
@@ -132,6 +132,8 @@ cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabe
 #'
 #' @method print cvpensynth
 #'
+#' @returns the cvpensynth object, invisibly
+#'
 #' @export
 print.cvpensynth <- function(x, ...) {
   cat("Hold-out validated pensynth model\n---------------------------------\n")
@@ -153,7 +155,7 @@ print.cvpensynth <- function(x, ...) {
 #' @param x a `cvpensynth` output object
 #' @param ... additional arguments passed to `plot()`
 #'
-#' @return No return value, called for side effects
+#' @returns No return value, called for side effects
 #'
 #' @seealso [cv_pensynth()] [pensynth()]
 #'
@@ -216,7 +218,7 @@ plot.cvpensynth <- function(x, ...) {
 #'
 #' @seealso [plot.cvpensynth()]
 #'
-#' @return lambda sequence as a numeric vector
+#' @returns lambda sequence as a numeric vector
 #'
 #' @keywords internal
 lambda_sequence <- function(X1VX0, Delta, nlambda) {
@@ -226,13 +228,24 @@ lambda_sequence <- function(X1VX0, Delta, nlambda) {
 }
 
 
-#' Create prediction from pensynth model
+#' Create prediction from cvpensynth model
 #'
-#' @param object a fitted pensynth model
+#' Matrix multiplies the values in `newdata` by the unit weights
+#' extracted from the cvpensynth object to produce predicted
+#' values.
+#'
+#' @param object a fitted cvpensynth model
 #' @param newdata N_values * N_donors matrix of
 #' values for the donor units.
-#' @param lambda desired lambda value
+#' @param lambda desired lambda value (defaults to optimal lambda)
 #' @param ... ignored
+#'
+#' @details
+#' For a chosen lambda that is not in the list of tested lambdas
+#' in the cvpensynth object, the closest lambda (on the log scale)
+#' will be chosen.
+#'
+#' @returns a matrix (column vector) of predicted values
 #'
 #' @importFrom stats predict approx
 #'

@@ -27,7 +27,7 @@
 #' A penalized synthetic control estimator for disaggregated data.
 #' _Journal of the American Statistical Association, 116_(536), 1817-1834.
 #'
-#' @return A list with two values: `w`, the estimated weights; and
+#' @returns A list with two values: `w`, the estimated weights; and
 #' `solution`, the result of the optimization.
 #'
 #' @importFrom utils capture.output
@@ -69,15 +69,15 @@ pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_co
     rep(0, N_donors) # Individ. weights gte 0 constraint
   )
 
-# Run the quadratic program solver
+  # Run the quadratic program solver
   result <- clarabel::clarabel(
     P = X0VX0,
     q = -X1VX0 + lambda*Delta,
     A = Amat,
     b = B,
     cones = list(
-      z = 1L, # There are 1 equalities
-      l = N_donors # There are N_donors * 2 inequalities
+      z = 1L, # There is 1 equality
+      l = N_donors # There are N_donors inequalities
     ),
     control = opt_pars
   )
@@ -105,6 +105,8 @@ pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_co
 #'
 #' @method print pensynth
 #'
+#' @returns the pensynth object, invisibly
+#'
 #' @export
 print.pensynth <- function(x, ...) {
   cat("Pensynth model\n--------------\n")
@@ -119,12 +121,18 @@ print.pensynth <- function(x, ...) {
 
 #' Create prediction from pensynth model
 #'
-#' @param object a fitted pensynth model
+#' Matrix multiplies the values in `newdata` by the unit weights
+#' extracted from the pensynth object to produce predicted
+#' values.
+#'
+#' @param object a fitted cvpensynth model
 #' @param newdata N_values * N_donors matrix of
 #' values for the donor units.
 #' @param ... ignored
 #'
-#' @importFrom stats predict
+#' @returns a matrix (column vector) of predicted values
+#'
+#' @importFrom stats predict approx
 #'
 #' @method predict pensynth
 #'

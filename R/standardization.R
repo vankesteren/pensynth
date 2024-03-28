@@ -11,6 +11,8 @@
 #'
 #' @seealso [base::scale()]
 #'
+#' @returns a list with X1 and X0 standardized.
+#'
 #' @importFrom stats sd
 #'
 #' @keywords internal
