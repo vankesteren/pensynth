@@ -13,6 +13,7 @@ cv_pensynth(
   nlambda = 100,
   opt_pars = clarabel::clarabel_control(),
   standardize = TRUE,
+  boot_weight = FALSE,
   return_solver_info = FALSE
 )
 }
@@ -33,6 +34,8 @@ cv_pensynth(
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 
+\item{boot_weight}{\code{boolean} whether to apply Bayesian bootstrap weights (see details)}
+
 \item{return_solver_info}{\code{boolean} whether to return diagnostic information concerning solver (default FALSE)}
 }
 \value{
@@ -48,6 +51,9 @@ error on a hold-out set of pre-intervention outcome time-series.
 \details{
 The lambda sequence is an exponentially increasing sequence where
 The minimum lambda is always 1e-11, the max lambda is determined by the data.
+
+Bayesian bootstrap weights can be applied as well, to produce uncertainty estimates for the
+predictions. The weights will be generated randomly on-the-fly.
 }
 \examples{
 set.seed(45)

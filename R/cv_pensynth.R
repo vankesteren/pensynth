@@ -12,10 +12,14 @@
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
+#' @param boot_weight `boolean` whether to apply Bayesian bootstrap weights (see details)
 #' @param return_solver_info `boolean` whether to return diagnostic information concerning solver (default FALSE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-11, the max lambda is determined by the data.
+#'
+#' Bayesian bootstrap weights can be applied as well, to produce uncertainty estimates for the
+#' predictions. The weights will be generated randomly on-the-fly.
 #'
 #' @returns A list of the lambda sequence, the associated weights, and the mses. If
 #' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
@@ -29,7 +33,7 @@
 #'
 #' @export
 cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabel::clarabel_control(),
-                        standardize = TRUE, return_solver_info = FALSE) {
+                        standardize = TRUE, boot_weight = FALSE, return_solver_info = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -38,6 +42,16 @@ cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabe
   N_donors <- ncol(X0)
   X0v <- X0*sqrt(v)
   X1v <- X1*sqrt(v)
+
+  if (boot_weight) {
+    N_covar <- nrow(X0)
+    w <- rexp(N_donors)
+    X0v <- X0v * rep(sqrt(w), each = N_covar)
+    Z0  <- Z0 * rep(sqrt(w), each = N_covar)
+    sw1 <- sqrt(rexp(1))
+    X1v <- X1v * sw1
+    Z1  <- Z1 * sw1
+  }
 
   X0VX0 <- crossprod(X0v)
   X1VX0 <- crossprod(X1v, X0v)

@@ -10,7 +10,8 @@ pensynth(
   v = 1,
   lambda = 0,
   opt_pars = clarabel::clarabel_control(),
-  standardize = TRUE
+  standardize = TRUE,
+  boot_weight = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ pensynth(
 \item{opt_pars}{\code{clarabel} settings using \code{\link[clarabel:clarabel_control]{clarabel::clarabel_control()}}}
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
+
+\item{boot_weight}{\code{boolean} whether to apply Bayesian bootstrap weights (see details)}
 }
 \value{
 A list with two values: \code{w}, the estimated weights; and
@@ -47,6 +50,9 @@ This is by design.
 
 The original synthetic control method can be recovered by setting lambda = 0. For determining
 lambda based on data, see \code{\link[=cv_pensynth]{cv_pensynth()}}.
+
+Bayesian bootstrap weights can be applied as well, to produce uncertainty estimates for the
+predictions. The weights will be generated randomly on-the-fly.
 }
 \examples{
 # generate some data

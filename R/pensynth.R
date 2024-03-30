@@ -11,6 +11,7 @@
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
+#' @param boot_weight `boolean` whether to apply Bayesian bootstrap weights (see details)
 #'
 #' @details This routine uses the same notation of the original [Synth::synth()] implementation
 #' but uses a different, faster quadratic program solver (namely, [clarabel::clarabel()]).
@@ -23,6 +24,9 @@
 #' The original synthetic control method can be recovered by setting lambda = 0. For determining
 #' lambda based on data, see [cv_pensynth()].
 #'
+#' Bayesian bootstrap weights can be applied as well, to produce uncertainty estimates for the
+#' predictions. The weights will be generated randomly on-the-fly.
+#'
 #' @references Abadie, A., & L’Hour, J. (2021).
 #' A penalized synthetic control estimator for disaggregated data.
 #' _Journal of the American Statistical Association, 116_(536), 1817-1834.
@@ -31,13 +35,14 @@
 #' `solution`, the result of the optimization.
 #'
 #' @importFrom utils capture.output
+#' @importFrom stats rexp
 #'
 #' @example R/examples/example_pensynth.R
 #'
 #' @seealso [cv_pensynth()], [placebo_test()], [simulate_data()], [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
+pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE, boot_weight = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -46,6 +51,13 @@ pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_co
   N_donors <- ncol(X0)
   X0v <- X0*sqrt(v)
   X1v <- X1*sqrt(v)
+
+  if (boot_weight) {
+    N_covar <- nrow(X0)
+    w <- rexp(N_donors)
+    X0v <- X0v * rep(sqrt(w), each = N_covar)
+    X1v <- X1v * sqrt(rexp(1))
+  }
 
   # components for quadratic program
   # see https://github.com/jeremylhour/pensynth/blob/master/functions/wsoll1.R
