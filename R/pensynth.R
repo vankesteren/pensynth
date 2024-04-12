@@ -152,3 +152,8 @@ print.pensynth <- function(x, ...) {
 predict.pensynth <- function(object, newdata, ...) {
   return(newdata %*% object$w)
 }
+
+#' @importFrom stats weights
+#' @method weights pensynth
+#' @export
+weights.pensynth <- function(object, ...) object$w

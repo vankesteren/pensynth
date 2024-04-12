@@ -40,7 +40,7 @@
 #' 493-505.
 #'
 #' @export
-placebo_test <- function(object, Y1, Y0){
+placebo_test <- function(object, Y1, Y0) {
   UseMethod("placebo_test")
 }
 

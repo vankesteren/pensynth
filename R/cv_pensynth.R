@@ -45,9 +45,10 @@ cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabe
 
   if (boot_weight) {
     N_covar <- nrow(X0)
+    N_pre <- nrow(Z0)
     w <- rexp(N_donors)
     X0v <- X0v * rep(sqrt(w), each = N_covar)
-    Z0  <- Z0 * rep(sqrt(w), each = N_covar)
+    Z0  <- Z0 * rep(sqrt(w), each = N_pre)
     sw1 <- sqrt(rexp(1))
     X1v <- X1v * sw1
     Z1  <- Z1 * sw1
@@ -273,3 +274,7 @@ predict.cvpensynth <- function(object, newdata, lambda, ...) {
   message("Closest lambda: ", object[["lseq"]][lambda_idx])
   return(newdata %*% object[["w_path"]][,lambda_idx])
 }
+
+#' @importFrom stats weights
+#' @export
+weights.cvpensynth <- function(object, ...) object$w_opt
