@@ -1,8 +1,8 @@
 # Example of Bayesian bootstrap
 set.seed(45)
-dat <- simulate_data()
-fit <- pensynth(dat$X1, dat$X0, lambda = 1e-5)
-bb  <- bootstrap(fit, n_iter = 200)
+dat <- simulate_data(N_donor = 50)
+fit <- pensynth(dat$X1, dat$X0, lambda = .44)
+bb  <- bootstrap(fit, n_iter = 500)
 
 # Compute uncertainty interval
 bb_pred <- predict(bb, rbind(dat$Z0, dat$Y0))
@@ -126,9 +126,42 @@ scpi_format <- function(dat) {
   ), class = "scdata")
 }
 
+scpi_dat <- scpi_format(dat)
+res <- scpi(scpi_dat, w.constr = list(name = "simplex", Q = 1), e.order = 0, u.order = 0, rho = .44)
+
+scplot(res)$plot_out_qr
+
+# scpi plot but using bb
+var_predict  <- mean(apply(apply(predict(bb, dat$Z0), 2, \(x) x - dat$Z1), 1, var))
+fuzzed_pred <- predict(bb, dat$Y0) + rnorm(length(bb$boot_fit)*nrow(dat$Y0), sd = sqrt(var_predict))
+pre_pred <- predict(bb, dat$Z0)
+data.frame(
+  estim = predict(fit, rbind(dat$Z0, dat$Y0)),
+  lower = apply(rbind(pre_pred, fuzzed_pred), 1, quantile, probs = 0.025),
+  upper = apply(rbind(pre_pred, fuzzed_pred), 1, quantile, probs = 0.975)
+) |> mutate(width = upper - lower) |>
+  mutate(time = 1:length(c(dat$Z1, dat$Y1)), pre = time <= length(dat$Z1)) |>
+  ggplot(aes(x = time, y = estim, ymin = lower, ymax = upper)) +
+  geom_vline(xintercept = nrow(dat$Z0) + 0.5, linetype = 2) +
+  geom_line(linetype = 2) +
+  geom_line(aes(y = rowMeans(predict(bb, rbind(dat$Z0, dat$Y0))))) +
+  geom_line(aes(colour = pre), linetype = 2) +
+  geom_errorbar(aes(colour = pre), width = 0.2) +
+  geom_point(aes(colour = pre), size = 2.5) +
+  geom_line(aes(y = c(dat$Z1, dat$Y1))) +
+  geom_point(aes(y = c(dat$Z1, dat$Y1)), pch = 21, size = 2.5, stroke = .8) +
+  scale_colour_manual(values = c("TRUE" = "seagreen", "FALSE" = "blue"), guide = "none") +
+  theme_linedraw() +
+  labs(
+    x = "timepoint",
+    y = "outcome",
+    title = "Bayesian bootstrap pseudo-prediction intervals",
+    subtitle = paste(length(bb$boot_fit), "bootstrap replications")
+  )
+
+# compute
 compute_scpi_coverage <- function(dat) {
-  res <- scpi(scpi_dat, w.constr = list(name = "simplex", Q = 1), e.order = 0, u.order = 0)
-  # compute
+
 }
 
 
