@@ -128,12 +128,16 @@ scpi_format <- function(dat) {
 
 scpi_dat <- scpi_format(dat)
 res <- scpi(scpi_dat, w.constr = list(name = "simplex", Q = 1), e.order = 0, u.order = 0, rho = .44)
-
+res$inference.results$CI.all.qreg
 scplot(res)$plot_out_qr
 
 # scpi plot but using bb
-var_predict  <- mean(apply(apply(predict(bb, dat$Z0), 2, \(x) x - dat$Z1), 1, var))
-fuzzed_pred <- predict(bb, dat$Y0) + rnorm(length(bb$boot_fit)*nrow(dat$Y0), sd = sqrt(var_predict))
+resid_pre  <- apply(predict(bb, dat$Z0), 2, \(x) x - dat$Z1)
+# https://stats.stackexchange.com/a/501275/116878
+fuzzed_pred <- predict(bb, dat$Y0) + sample(resid_pre, size = length(bb$boot_fit)*nrow(dat$Y0), replace = TRUE)
+
+apply(fuzzed_pred, 1, quantile, prob = 0.025)
+apply(fuzzed_pred, 1, quantile, prob = 0.975)
 pre_pred <- predict(bb, dat$Z0)
 data.frame(
   estim = predict(fit, rbind(dat$Z0, dat$Y0)),
