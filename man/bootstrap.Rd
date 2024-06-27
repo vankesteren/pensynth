@@ -6,16 +6,24 @@
 \alias{bootstrap.cvpensynth}
 \title{Bayesian bootstrap inference}
 \usage{
-bootstrap(object, n_iter = 1000L, cl)
+bootstrap(object, n_iter = 200L, ...)
 
-\method{bootstrap}{pensynth}(object, n_iter = 1000L, cl)
+\method{bootstrap}{pensynth}(object, n_iter, X1, X0)
 
-\method{bootstrap}{cvpensynth}(object, n_iter = 1000L)
+\method{bootstrap}{cvpensynth}(object, n_iter, X1, X0, Z1, Z0)
 }
 \arguments{
 \item{object}{a fitted \code{pensynth} or \code{cvpensynth} object}
 
 \item{n_iter}{\code{int} number of bootstrap iterations (default 1000)}
+
+\item{X1}{\verb{N_covars by 1 matrix} of treated unit covariates}
+
+\item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
+
+\item{Z1}{\verb{N_targets by 1 matrix} of treated unit hold-out outcome}
+
+\item{Z0}{\verb{N_targets by N_donors matrix} of donor unit hold-out outcome}
 }
 \description{
 Produce Bayesian bootstrap prediction intervals and ATE intervals

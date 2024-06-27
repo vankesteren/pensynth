@@ -12,7 +12,8 @@
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
-#' @param boot_weight `boolean` whether to apply Bayesian bootstrap weights (see details)
+#' @param iweights `N_donors + 1 vector` of importance / analytic weights. The first weight
+#' belongs to the treated unit.
 #' @param return_solver_info `boolean` whether to return diagnostic information concerning solver (default FALSE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
@@ -33,7 +34,7 @@
 #'
 #' @export
 cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabel::clarabel_control(),
-                        standardize = TRUE, boot_weight = FALSE, return_solver_info = FALSE) {
+                        standardize = TRUE, iweights, return_solver_info = FALSE) {
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -43,15 +44,16 @@ cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabe
   X0v <- X0*sqrt(v)
   X1v <- X1*sqrt(v)
 
-  if (boot_weight) {
+  # apply analytic weights if they are provided
+  if (!missing(iweights)) {
+    stopifnot(length(iweights) == N_donors + 1)
     N_covar <- nrow(X0)
     N_pre <- nrow(Z0)
-    w <- rexp(N_donors)
-    X0v <- X0v * rep(sqrt(w), each = N_covar)
-    Z0  <- Z0 * rep(sqrt(w), each = N_pre)
-    sw1 <- sqrt(rexp(1))
-    X1v <- X1v * sw1
-    Z1  <- Z1 * sw1
+    w <- sqrt(iweights)
+    X0v <- X0v * rep(w[-1], each = N_covar)
+    Z0  <- Z0  * rep(w[-1], each = N_pre)
+    X1v <- X1v * w[1]
+    Z1  <- Z1  * w[1]
   }
 
   X0VX0 <- crossprod(X0v)

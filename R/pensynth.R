@@ -11,7 +11,8 @@
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
-#' @param boot_weight `boolean` whether to apply Bayesian bootstrap weights (see details)
+#' @param iweights `N_donors + 1 vector` of importance / analytic weights. The first weight
+#' belongs to the treated unit.
 #'
 #' @details This routine uses the same notation of the original [Synth::synth()] implementation
 #' but uses a different, faster quadratic program solver (namely, [clarabel::clarabel()]).
@@ -24,8 +25,8 @@
 #' The original synthetic control method can be recovered by setting lambda = 0. For determining
 #' lambda based on data, see [cv_pensynth()].
 #'
-#' Bayesian bootstrap weights can be applied as well, to produce uncertainty estimates for the
-#' predictions. The weights will be generated randomly on-the-fly.
+#' Using the exponential weights for iweights argument, the Bayesian bootstrap can be applied.
+#' see [boot_pensynth()] for more.
 #'
 #' @references Abadie, A., & L’Hour, J. (2021).
 #' A penalized synthetic control estimator for disaggregated data.
@@ -42,21 +43,26 @@
 #' @seealso [cv_pensynth()], [placebo_test()], [simulate_data()], [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE, boot_weight = FALSE) {
+pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE, iweights) {
+  # perform standardization
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
     X1 <- st$X1
   }
+
+  # apply variable weights
   N_donors <- ncol(X0)
   X0v <- X0*sqrt(v)
   X1v <- X1*sqrt(v)
 
-  if (boot_weight) {
+  # apply analytic weights if they are provided
+  if (!missing(iweights)) {
+    stopifnot(length(iweights) == N_donors + 1)
     N_covar <- nrow(X0)
-    w <- rexp(N_donors)
-    X0v <- X0v * rep(sqrt(w), each = N_covar)
-    X1v <- X1v * sqrt(rexp(1))
+    w <- sqrt(iweights)
+    X0v <- X0v * rep(w[-1], each = N_covar)
+    X1v <- X1v * w[1]
   }
 
   # components for quadratic program

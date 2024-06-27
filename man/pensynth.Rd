@@ -11,7 +11,7 @@ pensynth(
   lambda = 0,
   opt_pars = clarabel::clarabel_control(),
   standardize = TRUE,
-  boot_weight = FALSE
+  iweights
 )
 }
 \arguments{
@@ -27,7 +27,8 @@ pensynth(
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 
-\item{boot_weight}{\code{boolean} whether to apply Bayesian bootstrap weights (see details)}
+\item{iweights}{\verb{N_donors + 1 vector} of importance / analytic weights. The first weight
+belongs to the treated unit.}
 }
 \value{
 A list with two values: \code{w}, the estimated weights; and
@@ -51,8 +52,8 @@ This is by design.
 The original synthetic control method can be recovered by setting lambda = 0. For determining
 lambda based on data, see \code{\link[=cv_pensynth]{cv_pensynth()}}.
 
-Bayesian bootstrap weights can be applied as well, to produce uncertainty estimates for the
-predictions. The weights will be generated randomly on-the-fly.
+Using the exponential weights for iweights argument, the Bayesian bootstrap can be applied.
+see \code{\link[=boot_pensynth]{boot_pensynth()}} for more.
 }
 \examples{
 # generate some data
