@@ -13,7 +13,7 @@ rarnorm(n, mean = 0, sd = 1, phi = 0)
 
 \item{sd}{marginal standard deviation}
 
-\item{phi}{autoregressive parameter (-1 <= phi <= 1)}
+\item{phi}{autoregressive parameter (-1 < phi < 1)}
 }
 \value{
 vector of numeric values
