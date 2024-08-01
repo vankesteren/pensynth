@@ -59,7 +59,7 @@ occasion.
 }
 \examples{
 # simulate data with an effect of 0.8 SD
-dat <- simulate_data(treatment_effect = 0.8, ar1_outcome = 0.95)
+dat <- simulate_data(treatment_effect = 0.8)
 
 plot(
   NA,
