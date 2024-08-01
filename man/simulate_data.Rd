@@ -13,7 +13,7 @@ simulate_data(
   treatment_effect = 1,
   sd_resid_X = 0.1,
   sd_resid_ZY = 0.1,
-  ar1_outcome = 0
+  ar1_outcome = 0.8
 )
 }
 \arguments{
