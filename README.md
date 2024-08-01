@@ -97,25 +97,7 @@ Y1_synth <- predict(
   newdata = dat$Y0 # Donor units post-intervention outcome
 )
 mean(dat$Y1 - Y1_synth)
-#> [1] 0.8863562
-```
-
-We can use a placebo test (a kind of permutation test) to compare the effect to a reference distribution. This applies the penalized synthetic control method to each of the donors, including hold-out validation, and then computes the estimated treatment effect.
-
-```r
-# Perform a placebo permutation test
-fit_test <- placebo_test(fit, dat$Y1, dat$Y0)
-plot(fit_test)
-abline(h = 0.8, lty = 2)
-legend("bottomright", lty = 2, legend = "True effect")
-```
-![testplot](img/testplot.png)
-
-Finally, we can compute a kind of p-value using the placebo-permuted ATE as reference distribution
-```r
-# compute a placebo-p-value
-1 - ecdf(fit_test$ATE0)(fit_test$ATE1)
-#> [1] 0.04
+#> [1] 0.8780154
 ```
 
 # References
