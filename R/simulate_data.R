@@ -84,7 +84,7 @@ simulate_data <- function(
 #' @param n number of observations.
 #' @param mean marginal mean
 #' @param sd marginal standard deviation
-#' @param phi autoregressive parameter (-1 <= phi <= 1)
+#' @param phi autoregressive parameter (-1 < phi < 1)
 #'
 #' @importFrom stats rnorm
 #'
@@ -97,7 +97,7 @@ simulate_data <- function(
 #' @keywords internal
 rarnorm <- function(n, mean = 0, sd = 1, phi = 0) {
   # argument checks
-  stopifnot(phi >= -1 & phi <= 1)
+  stopifnot(abs(phi) < 1)
   if (phi == 0) return(rnorm(n, mean, sd))
 
   # create vector, pick first value, and fill remaining ones
