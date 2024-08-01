@@ -56,7 +56,7 @@ simulate_data <- function(
 
   # Covariates
   X0 <- matrix(rnorm(N_covar * N_donor), N_covar)
-  X1 <- X0 %*% w + rnorm(N_covar, sd = sd_resid_X1)
+  X1 <- X0 %*% w + rnorm(N_covar, sd = sd_resid_X)
 
   # Outcome
   N_tot <- N_pre + N_post
@@ -81,6 +81,7 @@ simulate_data <- function(
 
 #' Generate data from normal distribution with AR1 parameter
 #'
+#' @param n number of observations.
 #' @param mean marginal mean
 #' @param sd marginal standard deviation
 #' @param phi autoregressive parameter (-1 <= phi <= 1)
@@ -88,7 +89,13 @@ simulate_data <- function(
 #' @importFrom stats rnorm
 #'
 #' @return vector of numeric values
-rarnorm <- function(n = 10, mean = 0, sd = 1, phi = 0) {
+#'
+#' @details
+#' Note that, unlike [stats::rnorm()], this function is
+#' not vectorized over mean, sd, or phi.
+#'
+#' @keywords internal
+rarnorm <- function(n, mean = 0, sd = 1, phi = 0) {
   # argument checks
   stopifnot(phi >= -1 & phi <= 1)
   if (phi == 0) return(rnorm(n, mean, sd))
