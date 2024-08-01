@@ -19,10 +19,10 @@ legend(
   legend = c(
     "Donor units",
     "Treated unit",
-    "True synth. control",
-    "Intervention time"
+    "Synth. control"
   ),
-  lty = c(1, 1, 2, 3),
-  lwd = c(1, 2, 2, 1),
-  col = c("grey", "black", "black", "black")
+  lty = c(1, 1, 2),
+  lwd = c(1, 2, 2),
+  col = c("grey", "black", "black")
 )
+text(length(dat$Z1) + 0.5, -3, "Intervention\ntimepoint", pos = 4, font = 3)
