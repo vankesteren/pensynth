@@ -2,7 +2,7 @@
 set.seed(45)
 dat <- simulate_data(N_donor = 50)
 fit <- pensynth(dat$X1, dat$X0, lambda = .44)
-bb  <- bootstrap(fit, n_iter = 500)
+bb  <- bootstrap(fit, n_iter = 500, X1 = dat$X1, X0 = dat$X0)
 
 # Compute uncertainty interval
 bb_pred <- predict(bb, rbind(dat$Z0, dat$Y0))
@@ -14,6 +14,7 @@ lwr95   <- apply(bb_pred, 1, quantile, 0.025)
 plot(c(dat$Z1, dat$Y1), type = "l", ylim = range(c(dat$Z1, dat$Y1, upr95, lwr95)))
 lines(est, col = "#343488")
 polygon(c(1:18, 18:1), c(lwr95, rev(upr95)), col = "#34348855", border = NA)
+abline(v = nrow(dat$Z1) + .5, lty = 2)
 
 
 # plot posterior CI of ATE
@@ -43,11 +44,11 @@ sim_func <- function(i) {
   fit <- pensynth(dli$X1, dli$X0, lambda = 1e-5)
 
   # Donor permutation test
-  pt <- placebo_test(fit, dli$Y1, dli$Y0)
+  pt <- placebo_test(fit, Y1 = dli$Y1, Y0 = dli$Y0)
   res_pt <- ecdf(pt$ATE0)(pt$ATE1) > 0.975 | ecdf(pt$ATE0)(pt$ATE1) < 0.025
 
   # Bayesian bootstrap for ATE
-  res_bb <- bootstrap(fit, n_iter = NBOOT)
+  res_bb <- bootstrap(fit, n_iter = NBOOT, X1 = dli$X1, X0 = dli$X0)
   prd_bb <- predict(res_bb, dli$Y0)
   eff_bb <- sapply(1:NBOOT, \(i) dli$Y1 - prd_bb[,i])
   dst_bb <- ecdf(colMeans(eff_bb))
@@ -59,9 +60,6 @@ sim_func <- function(i) {
 
 pbsapply(1:10, sim_func)
 
-dli
-
-colMeans(res)
 
 
 
@@ -163,12 +161,6 @@ data.frame(
     subtitle = paste(length(bb$boot_fit), "bootstrap replications")
   )
 
-# compute
-compute_scpi_coverage <- function(dat) {
-
-}
-
-
 
 # test boot coverage vs scpi coverage
 # seems much better????
@@ -189,36 +181,37 @@ sim_func <- function(effect = 0) {
       verbose = FALSE
     )
   )
-  scpi_eff <- colMeans(apply(scpi_res$inference.results$CI.all.qreg, 2, \(Yhat) Yhat - dat$Y1))[1:2]
+  scpi_eff <- colMeans(apply(scpi_res$inference.results$CI.all.qreg, 2, \(Yhat) dat$Y1 - Yhat))[1:2]
 
   # compute boot solution
-  boo <- replicate(200, pensynth(dat$X1, dat$X0, lambda = 1e-5, boot_weight = TRUE)$w)
+  fit <- pensynth(dat$X1, dat$X0, lambda = 1e-5)
+  boo <- bootstrap(fit, n_iter = 200L, X1 = dat$X1, X0 = dat$X0)
 
   # compute residuals
-  pre <- dat$Z0 %*% boo
+  pre <- predict(boo, dat$Z0)
   rsd <- apply(pre, 2, function(Zhat) dat$Z1 - Zhat)
 
   # create predictions w/ boot residuals
-  prd <- dat$Y0 %*% boo + sample(rsd, nrow(dat$Y0) * ncol(boo), replace = TRUE)
+  prd <- predict(boo, dat$Y0) + sample(rsd, nrow(dat$Y0) * length(boo), replace = TRUE)
   eff <- apply(prd, 2, function(Yhat) dat$Y1 - Yhat)
   ate <- colMeans(eff)
   lwr <- quantile(ate, 0.025)
   upr <- quantile(ate, 0.975)
 
-  c("scpi_lo" = scpi_eff[1], "scpi_hi" = scpi_eff[2], "boot_lo" = lwr, "boot_hi" = upr)
+  c("scpi_lo" = scpi_eff[2], "scpi_hi" = scpi_eff[1], "boot_lo" = lwr, "boot_hi" = upr)
 }
 
 clus <- makeCluster(12)
 clusterEvalQ(clus, devtools::load_all())
 clusterEvalQ(clus, library(scpi))
 clusterExport(clus, c("sim_func", "scpi_format"))
-res <- pbsapply(1:100, \(i) sim_func(1), cl = clus)
+res <- pbsapply(1:100, \(i) sim_func(1.56), cl = clus)
 
 library(tidyverse)
 t(res) |>
   as_tibble() |>
   pivot_longer(everything(), names_to = c("method", ".value"), names_pattern = "(.*)_([hilo]{2})") |>
-  mutate(width = hi - lo, cvg = hi > 0 & lo < 0) |>
+  mutate(width = hi - lo, cvg = hi > 1.56 & lo < 1.56) |>
   summarize(across(everything(), mean), .by = method)
 
 rowMeans(res)
