@@ -11,9 +11,9 @@ simulate_data(
   N_post = 6,
   N_nonzero = 4,
   treatment_effect = 1,
-  sd_resid_X1 = 0.1,
-  sd_resid_Z1 = 0.1,
-  sd_resid_Y1 = 0.1
+  sd_resid_X = 0.1,
+  sd_resid_ZY = 0.1,
+  ar1_outcome = 0.8
 )
 }
 \arguments{
@@ -29,11 +29,11 @@ simulate_data(
 
 \item{treatment_effect}{the size of the true treatment effect}
 
-\item{sd_resid_X1}{the residual standard deviation of X1}
+\item{sd_resid_X}{the residual standard deviation of X1}
 
-\item{sd_resid_Z1}{the residual standard deviation of Z1}
+\item{sd_resid_ZY}{the residual standard deviation of Z1 and Y1}
 
-\item{sd_resid_Y1}{the residual standard deviation of Y1}
+\item{ar1_outcome}{autoregressive effect of the outcome}
 }
 \value{
 A list with the following elements
@@ -79,13 +79,13 @@ legend(
   legend = c(
     "Donor units",
     "Treated unit",
-    "True synth. control",
-    "Intervention time"
+    "Synth. control"
   ),
-  lty = c(1, 1, 2, 3),
-  lwd = c(1, 2, 2, 1),
-  col = c("grey", "black", "black", "black")
+  lty = c(1, 1, 2),
+  lwd = c(1, 2, 2),
+  col = c("grey", "black", "black")
 )
+text(length(dat$Z1) + 0.5, -3, "Intervention\ntimepoint", pos = 4, font = 3)
 }
 \seealso{
 \code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}
