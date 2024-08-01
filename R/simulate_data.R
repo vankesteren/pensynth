@@ -9,9 +9,9 @@
 #' @param N_post number of post-intervention timepoints
 #' @param N_nonzero number of true nonzero weights
 #' @param treatment_effect the size of the true treatment effect
-#' @param sd_resid_X1 the residual standard deviation of X1
-#' @param sd_resid_Z1 the residual standard deviation of Z1
-#' @param sd_resid_Y1 the residual standard deviation of Y1
+#' @param sd_resid_X the residual standard deviation of X1
+#' @param sd_resid_ZY the residual standard deviation of Z1 and Y1
+#' @param ar1_outcome autoregressive effect of the outcome
 #'
 #' @returns A list with the following elements
 #' - w the true unit weights
@@ -32,6 +32,8 @@
 #' the effect size at each post-intervention measurement
 #' occasion.
 #'
+#'
+#'
 #' @seealso [pensynth()], [cv_pensynth()], [placebo_test()]
 #'
 #' @export
@@ -42,18 +44,59 @@ simulate_data <- function(
     N_post = 6,
     N_nonzero = 4,
     treatment_effect = 1,
-    sd_resid_X1 = 0.1,
-    sd_resid_Z1 = 0.1,
-    sd_resid_Y1 = 0.1
+    sd_resid_X = 0.1,
+    sd_resid_ZY = 0.1,
+    ar1_outcome = 0
   ) {
+
+  # Weights
   w  <- runif(N_donor)
   if (N_nonzero < N_donor) w[(N_nonzero + 1):N_donor] <- 0
   w  <- w / sum(w)
+
+  # Covariates
   X0 <- matrix(rnorm(N_covar * N_donor), N_covar)
   X1 <- X0 %*% w + rnorm(N_covar, sd = sd_resid_X1)
-  Z0 <- matrix(rnorm(N_pre * N_donor), N_pre)
-  Z1 <- Z0 %*% w + rnorm(N_pre, sd = sd_resid_Z1)
-  Y0 <- matrix(rnorm(N_post * N_donor), N_post)
-  Y1 <- Y0 %*% w + treatment_effect + rnorm(N_post, sd = sd_resid_Y1)
+
+  # Outcome
+  N_tot <- N_pre + N_post
+
+  # Pre- and post outcome for donor units
+  ZY0 <- matrix(rarnorm(N_tot * N_donor, phi = ar1_outcome), N_tot)
+  Z0  <- ZY0[1:N_pre,]
+  Y0  <- ZY0[(N_pre+1):N_tot,]
+
+  # Pre- and post outcome for treated unit
+  RZY <- matrix(rnorm(N_tot * 1, sd = sd_resid_ZY), N_tot)
+  RZ  <- RZY[1:N_pre,]
+  RY  <- RZY[(N_pre+1):N_tot,]
+
+  Z1 <- Z0 %*% w + RZ
+  Y1 <- Y0 %*% w + treatment_effect + RY
+
+  # Return matrices
   list(w = w, X0 = X0, X1 = X1, Z0 = Z0, Z1 = Z1, Y0 = Y0, Y1 = Y1)
+}
+
+
+#' Generate data from normal distribution with AR1 parameter
+#'
+#' @param mean marginal mean
+#' @param sd marginal standard deviation
+#' @param phi autoregressive parameter (-1 <= phi <= 1)
+#'
+#' @importFrom stats rnorm
+#'
+#' @return vector of numeric values
+rarnorm <- function(n = 10, mean = 0, sd = 1, phi = 0) {
+  # argument checks
+  stopifnot(phi >= -1 & phi <= 1)
+  if (phi == 0) return(rnorm(n, mean, sd))
+
+  # create vector, pick first value, and fill remaining ones
+  x <- numeric(n)
+  x[1] <- rnorm(1, mean, sd)
+  for (i in 2:n)
+    x[i] <- rnorm(1, mean + phi*(x[i-1]-mean), sqrt(sd^2 - sd^2 * phi^2))
+  return(x)
 }

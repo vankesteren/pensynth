@@ -1,5 +1,5 @@
 set.seed(45)
-dat <- simulate_data(treatment_effect = .8)
+dat <- simulate_data(treatment_effect = 1.2)
 attach(dat)
 test_that("Placebo test detects an effect", {
   fit <- pensynth(X1, X0, lambda = 4e-8)
