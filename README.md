@@ -15,7 +15,8 @@ The goal of `pensynth` is to make it easier to perform penalized synthetic contr
 - Plotting of the full solution path for hold-out validated penalized synthetic controls.
 - Placebo permutation testing of the post-intervention average treatment effect (ATE)
 
-> NB: pensynth estimates unit weights, but variable weights have to be pre-specified.
+> [!NOTE]
+> pensynth estimates unit weights, but variable weights have to be pre-specified. This is by design.
 
 ## Installation
 
