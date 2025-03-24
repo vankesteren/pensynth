@@ -114,3 +114,6 @@ legend(
 )
 text(nrow(dat$Z1) + 0.5, -5, "Intervention\ntimepoint", pos = 4, font = 3)
 }
+\seealso{
+\code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data]{simulate_data()}}
+}

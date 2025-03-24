@@ -143,6 +143,9 @@ simulate_data <- function(N_donor = 50,
 #' have been chosen such that the observed variables have
 #' expected variance of 1.
 #'
+#'
+#' @seealso [pensynth()], [cv_pensynth()], [placebo_test()], [simulate_data()]
+#'
 #' @export
 simulate_data_factor <- function(N_donor = 50,
                                  N_treated = 1,

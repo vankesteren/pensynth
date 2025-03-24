@@ -46,6 +46,28 @@ pensynth <- function(X1,
                      standardize = TRUE,
                      verbose = interactive()) {
 
+  N_treated <- ncol(X1)
+  if (N_treated > 1) {
+    if (verbose) cli::cli_alert_info("Multiple treated units detected, estimating multiple models")
+
+    # a little recursion :)
+    results <- vector("list", N_treated)
+    if (verbose) cli::cli_progress_bar("Fitting models.")
+    for (n in 1:N_treated) {
+      results[[n]] <- pensynth(X1[,n,drop=FALSE], X0, v, lambda, opt_pars, standardize, verbose = FALSE)
+      if (verbose) cli::cli_progress_update()
+    }
+
+    return(structure(
+      .Data = list(
+        w = sapply(results, \(x) x[["w"]]),
+        solution = lapply(results, \(x) x[["result"]]),
+        call = match.call()
+      ),
+      class = "pensynth"
+    ))
+  }
+
   if (verbose) cli::cli_progress_step("Preparing data.")
   if (standardize) {
     st <- standardize_X(X1, X0)
