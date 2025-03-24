@@ -13,6 +13,7 @@
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
 #' @param return_solver_info `boolean` whether to return diagnostic information concerning solver (default FALSE)
+#' @param verbose whether to print progress messages. Default on if in an interactive session.
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-11, the max lambda is determined by the data.
@@ -28,8 +29,18 @@
 #' @example R/examples/example_cv_pensynth.R
 #'
 #' @export
-cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabel::clarabel_control(),
-                        standardize = TRUE, return_solver_info = FALSE) {
+cv_pensynth <- function(X1,
+                        X0,
+                        Z1,
+                        Z0,
+                        v = 1,
+                        nlambda = 100,
+                        opt_pars = clarabel::clarabel_control(),
+                        standardize = TRUE,
+                        return_solver_info = FALSE,
+                        verbose = interactive()) {
+
+  if (verbose) cli::cli_progress_step("Preparing data.")
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -62,7 +73,8 @@ cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabe
   )
 
   # Define function for solving qp for a given lambda
-  solve_qp <- function(lambda) {
+  solve_qp <- function(id) {
+    lambda <- lseq[id]
     # run the quadratic program solver
     result <- clarabel::clarabel(
       P = X0VX0,
@@ -85,7 +97,17 @@ cv_pensynth <- function(X1, X0, Z1, Z0, v = 1, nlambda = 100, opt_pars = clarabe
     return(result)
   }
 
-  solver_output <- sapply(lseq, solve_qp)
+  if (verbose) {
+    cli::cli_progress_step("Fitting models.", name = "fitmsg")
+    solver_output <- sapply(
+      X = cli::cli_progress_along(x = lseq, name = "  Fitting models.", current = FALSE),
+      FUN = solve_qp
+    )
+  } else {
+    solver_output <- sapply(X = seq_along(lseq), FUN = solve_qp)
+  }
+
+  if (verbose) cli::cli_progress_step("Getting output.")
 
   # Extract weights
   w_path <- do.call(cbind, solver_output["x", ])
