@@ -11,6 +11,7 @@
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
+#' @param verbose whether to print progress messages. Default on if in an interactive session.
 #'
 #' @details This routine uses the same notation of the original [Synth::synth()] implementation
 #' but uses a different, faster quadratic program solver (namely, [clarabel::clarabel()]).
@@ -37,7 +38,15 @@
 #' @seealso [cv_pensynth()], [placebo_test()], [simulate_data()], [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_control(), standardize = TRUE) {
+pensynth <- function(X1,
+                     X0,
+                     v = 1,
+                     lambda = 0,
+                     opt_pars = clarabel::clarabel_control(),
+                     standardize = TRUE,
+                     verbose = interactive()) {
+
+  if (verbose) cli::cli_progress_step("Preparing data.")
   if (standardize) {
     st <- standardize_X(X1, X0)
     X0 <- st$X0
@@ -70,6 +79,7 @@ pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_co
   )
 
   # Run the quadratic program solver
+  if (verbose) cli::cli_progress_step("Fitting model.")
   result <- clarabel::clarabel(
     P = X0VX0,
     q = -X1VX0 + lambda*Delta,
@@ -79,7 +89,7 @@ pensynth <- function(X1, X0, v = 1, lambda = 0, opt_pars = clarabel::clarabel_co
       z = 1L, # There is 1 equality
       l = N_donors # There are N_donors inequalities
     ),
-    control = opt_pars
+    control = opt_pars,
   )
 
   # clarabel only returns a numeric status code, so we'll add a

@@ -2,10 +2,11 @@
 % Please edit documentation in R/simulate_data.R
 \name{simulate_data}
 \alias{simulate_data}
-\title{Simulate synthetic control data}
+\title{Simulate data according to synthetic control model}
 \usage{
 simulate_data(
   N_donor = 50,
+  N_treated = 1,
   N_covar = 5,
   N_pre = 12,
   N_post = 6,
@@ -18,6 +19,8 @@ simulate_data(
 }
 \arguments{
 \item{N_donor}{number of donors}
+
+\item{N_treated}{number of treated units}
 
 \item{N_covar}{number of covariates}
 
@@ -38,7 +41,7 @@ simulate_data(
 \value{
 A list with the following elements
 \itemize{
-\item w the true unit weights
+\item W the true unit weights
 \item X0 the donor unit covariates
 \item X1 the treated unit covariates
 \item Z0 the donor unit pre-intervention outcomes
@@ -49,13 +52,14 @@ A list with the following elements
 }
 \description{
 This function simulates a basic form of synthetic control
-data, mainly for testing purposes. This
+data, mainly for testing purposes.
 }
 \details{
 Note that treatment effect can be a single number, but
 it may also be a vector of length N_post, indicating
-the effect size at each post-intervention measurement
-occasion.
+the effect size at each post-intervention measurement.
+occasion. It may also be a matrix of size N_post by
+N_treated.
 }
 \examples{
 # simulate data with an effect of 0.8 SD
@@ -72,7 +76,7 @@ plot(
 for (n in 1:ncol(dat$Z0))
   lines(1:18, c(dat$Z0[, n], dat$Y0[, n]), col = "grey")
 lines(1:18, c(dat$Z1, dat$Y1), lwd = 2)
-lines(1:18, rbind(dat$Z0, dat$Y0) \%*\% dat$w, lty = 2, lwd = 2)
+lines(1:18, rbind(dat$Z0, dat$Y0) \%*\% dat$W, lty = 2, lwd = 2)
 abline(v = length(dat$Z1) + 0.5, lty = 3)
 legend(
   x = "bottomleft",
@@ -88,5 +92,5 @@ legend(
 text(length(dat$Z1) + 0.5, -3, "Intervention\ntimepoint", pos = 4, font = 3)
 }
 \seealso{
-\code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}
+\code{\link[=pensynth]{pensynth()}}, \code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data_factor]{simulate_data_factor()}}
 }
