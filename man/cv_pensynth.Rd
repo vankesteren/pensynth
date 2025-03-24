@@ -13,7 +13,8 @@ cv_pensynth(
   nlambda = 100,
   opt_pars = clarabel::clarabel_control(),
   standardize = TRUE,
-  return_solver_info = FALSE
+  return_solver_info = FALSE,
+  verbose = interactive()
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ cv_pensynth(
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 
 \item{return_solver_info}{\code{boolean} whether to return diagnostic information concerning solver (default FALSE)}
+
+\item{verbose}{whether to print progress messages. Default on if in an interactive session.}
 }
 \value{
 A list of the lambda sequence, the associated weights, and the mses. If

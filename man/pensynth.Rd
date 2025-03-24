@@ -10,7 +10,8 @@ pensynth(
   v = 1,
   lambda = 0,
   opt_pars = clarabel::clarabel_control(),
-  standardize = TRUE
+  standardize = TRUE,
+  verbose = interactive()
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ pensynth(
 \item{opt_pars}{\code{clarabel} settings using \code{\link[clarabel:clarabel_control]{clarabel::clarabel_control()}}}
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
+
+\item{verbose}{whether to print progress messages. Default on if in an interactive session.}
 }
 \value{
 A list with two values: \code{w}, the estimated weights; and
