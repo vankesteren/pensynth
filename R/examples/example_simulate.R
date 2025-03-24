@@ -26,3 +26,5 @@ legend(
   col = c("grey", "black", "black")
 )
 text(length(dat$Z1) + 0.5, -3, "Intervention\ntimepoint", pos = 4, font = 3)
+
+

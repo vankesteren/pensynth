@@ -1,7 +1,7 @@
 #' Simulate synthetic control data
 #'
 #' This function simulates a basic form of synthetic control
-#' data, mainly for testing purposes. This
+#' data, mainly for testing purposes.
 #'
 #' @param N_donor number of donors
 #' @param N_covar number of covariates
@@ -79,12 +79,12 @@ simulate_data <- function(
 }
 
 
-#' Generate data from normal distribution with AR1 parameter
+#' Generate data from normal distribution with autocorrelation parameter
 #'
 #' @param n number of observations.
 #' @param mean marginal mean
 #' @param sd marginal standard deviation
-#' @param phi autoregressive parameter (-1 < phi < 1)
+#' @param phi autocorrelation parameter (-1 < phi < 1)
 #'
 #' @importFrom stats rnorm
 #'
@@ -97,7 +97,8 @@ simulate_data <- function(
 #' @keywords internal
 rarnorm <- function(n, mean = 0, sd = 1, phi = 0) {
   # argument checks
-  stopifnot(abs(phi) < 1)
+  if (abs(phi) >= 1)
+    cli::cli_abort("AR parameter ({phi}) should be between -1 and 1.")
   if (phi == 0) return(rnorm(n, mean, sd))
 
   # create vector, pick first value, and fill remaining ones
@@ -106,4 +107,93 @@ rarnorm <- function(n, mean = 0, sd = 1, phi = 0) {
   for (i in 2:n)
     x[i] <- rnorm(1, mean + phi*(x[i-1]-mean), sqrt(sd^2 - sd^2 * phi^2))
   return(x)
+}
+
+#' Generate data from independent multivariate normal
+#' distribution with autocorrelation parameter
+#'
+#' @param n number of observations.
+#' @param mean marginal mean
+#' @param sd marginal standard deviation
+#' @param phi autocorrelation parameter (-1 < phi < 1)
+#'
+#' @importFrom stats rnorm
+#'
+#' @return matrix of numeric values
+#'
+#' @details
+#' Note that, unlike [stats::rnorm()], this function is
+#' not vectorized over mean, sd, or phi.
+#'
+#' @keywords internal
+mvrarnorm <- function(n, p, mean = 0, sd = 1, phi = 0) {
+  # argument checks
+  stopifnot(abs(phi) < 1)
+  if (phi == 0) return(matrix(rnorm(n*p, mean, sd), n))
+
+  # create vector, pick first value, and fill remaining ones
+  x <- matrix(0.0, nrow = n, ncol = p)
+  x[1,] <- rnorm(p, mean, sd)
+  for (i in 2:n)
+    x[i,] <- rnorm(p, mean + phi*(x[i-1,]-mean), sqrt(sd^2 - sd^2 * phi^2))
+  return(x)
+}
+
+#' @export
+simulate_data_factor <- function(
+    N_donor = 50,
+    N_nonzero = 4,
+    N_covar = 5,
+    N_pre = 12,
+    N_post = 6,
+    N_factors = 3,
+    treatment_effect = 1,
+    sd_factors = 1,
+    ar1_factors = 0.8,
+    sd_loadings = 1,
+    sd_errors = 1,
+    covar_means = FALSE
+  ) {
+  N_timepoints <- N_pre + N_post
+
+  N_units <- N_donor + 1
+
+  w  <- runif(N_donor)
+  if (N_nonzero < N_donor) w[(N_nonzero + 1):N_donor] <- 0
+  w  <- w / sum(w)
+
+  # the factors, vary over time but not over units
+  A <- mvrarnorm(N_timepoints, N_factors, sd = sd_factors, phi = ar1_factors)
+
+  # the loadings for the outcome timeseries, vary over units but not over time
+  L <- matrix(rnorm(N_donor*N_factors, sd = sd_loadings), N_factors)
+  L <- cbind(L %*% w, L)
+
+  # the residuals for outcome timeseries, vary over time and units
+  E <- matrix(rnorm(N_timepoints*N_units, sd = sd_errors), N_timepoints)
+
+  ZY <- A%*%L + E
+
+  ZY[(N_pre + 1):N_timepoints, 1] <- ZY[(N_pre + 1):N_timepoints, 1] + treatment_effect
+
+  # Now the covars
+  for (i in 1:N_covar) {
+    LCi <- matrix(rnorm(N_donor*N_factors, sd = sd_loadings), N_factors)
+    LCi <- cbind(LCi %*% w, LCi)
+    ECi <- matrix(rnorm(N_pre*N_units, sd = sd_errors), N_pre)
+    Ci <- (A[1:N_pre,]%*%LCi + ECi)
+    if (covar_means) {
+      X <- if (i == 1) colMeans(Ci) else rbind(X, colMeans(Ci))
+    } else {
+      X <- if (i == 1) Ci else rbind(X, Ci)
+    }
+  }
+
+  # Return matrices
+  list(
+    w = w,
+    X0 = X[,-1], X1 = X[,1,drop=FALSE],
+    Z0 = ZY[1:N_pre, -1], Z1 = ZY[1:N_pre,1, drop=FALSE],
+    Y0 = ZY[(N_pre + 1):N_timepoints, -1], Y1 = ZY[(N_pre + 1):N_timepoints,1, drop = FALSE]
+  )
 }
