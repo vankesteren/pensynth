@@ -9,6 +9,7 @@
 #' @param object a fitted `pensynth` or `cvpensynth` object
 #' @param Y1 the post-intervention outcome of the treated unit
 #' @param Y0 the post-intervention outcome of the donor units
+#' @param verbose `boolean` whether to print progress messages. Default on if in an interactive session.
 #' (with N_donors columns)
 #'
 #' @importFrom stats getCall update
@@ -143,6 +144,7 @@ placebo_test.cvpensynth <- function(object, Y1, Y0, verbose = TRUE) {
 #' for the pensynth permutation test.
 #'
 #' @param x a `pensynthtest` object
+#' @param treated_unit `integer` index of the treated unit to display
 #' @param ... additional parameters passed to `plot`
 #'
 #' @importFrom graphics legend

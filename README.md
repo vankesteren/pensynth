@@ -72,7 +72,7 @@ library(pensynth)
 set.seed(45)
 
 # Generate some data with a 0.8SD effect
-dat <- simulate_data(treatment_effect = 0.8)
+dat <- simulate_data_synth(treatment_effect = 0.8)
 ```
 ![dataplot](img/dataplot.png)
 

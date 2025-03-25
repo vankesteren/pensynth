@@ -4,12 +4,14 @@
 \alias{in_convex_hull}
 \title{Check whether treated unit is in the convex hull of donors}
 \usage{
-in_convex_hull(X1, X0, ...)
+in_convex_hull(X1, X0, verbose = interactive(), ...)
 }
 \arguments{
-\item{X1}{\verb{N_covars by 1 matrix} of treated unit covariates}
+\item{X1}{\verb{N_covars by N_treated matrix} of treated unit covariates}
 
 \item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
+
+\item{verbose}{\code{boolean} whether to print progress messages. Default on if in an interactive session.}
 
 \item{...}{additional arguments passed to \code{\link[clarabel:clarabel]{clarabel::clarabel()}}}
 }

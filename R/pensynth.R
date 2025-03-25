@@ -5,24 +5,24 @@
 #' according to Abadie & L'Hour (2021). This function deals with only a
 #' single treated unit.
 #'
-#' @param X1 `N_covars by 1 matrix` of treated unit covariates
+#' @param X1 `N_covars by N_treated matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
 #' @param v `N_covars vector` of variable weights (default 1)
 #' @param lambda `numeric` penalization parameter
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
-#' @param verbose whether to print progress messages. Default on if in an interactive session.
+#' @param verbose `boolean` whether to print progress messages. Default on if in an interactive session.
 #'
 #' @details This routine uses the same notation of the original [Synth::synth()] implementation
 #' but uses a different, faster quadratic program solver (namely, [clarabel::clarabel()]).
 #' Additionally, it implements the penalization procedure described in Abadie & L'Hour (2021),
-#' such that the loss function is as in equation 5 of that paper (but for a single treated unit).
+#' such that the loss function is as in equation 5 of that paper.
 #'
 #' Variable weights are not optimized by this function, meaning they need to be pre-specified.
 #' This is by design.
 #'
 #' The original synthetic control method can be recovered by setting lambda = 0. For determining
-#' lambda based on data, see [cv_pensynth()].
+#' lambda based on hold-out data, see [cv_pensynth()].
 #'
 #' @references Abadie, A., & L’Hour, J. (2021).
 #' A penalized synthetic control estimator for disaggregated data.
@@ -35,16 +35,18 @@
 #'
 #' @example R/examples/example_pensynth.R
 #'
-#' @seealso [cv_pensynth()], [placebo_test()], [simulate_data()], [Synth::synth()]
+#' @seealso [cv_pensynth()], [placebo_test()], [simulate_data_synth()], [Synth::synth()]
 #'
 #' @export
-pensynth <- function(X1,
-                     X0,
-                     v = 1,
-                     lambda = 0,
-                     opt_pars = clarabel::clarabel_control(),
-                     standardize = TRUE,
-                     verbose = interactive()) {
+pensynth <- function(
+  X1,
+  X0,
+  v = 1,
+  lambda = 0,
+  opt_pars = clarabel::clarabel_control(),
+  standardize = TRUE,
+  verbose = interactive()
+) {
 
   N_treated <- if (is.matrix(X1)) ncol(X1) else 1
   if (N_treated > 1) {
@@ -111,7 +113,7 @@ pensynth <- function(X1,
       z = 1L, # There is 1 equality
       l = N_donors # There are N_donors inequalities
     ),
-    control = opt_pars,
+    control = opt_pars
   )
 
   # clarabel only returns a numeric status code, so we'll add a

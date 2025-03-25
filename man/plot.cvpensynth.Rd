@@ -4,10 +4,12 @@
 \alias{plot.cvpensynth}
 \title{Plotting for hold-out validated penalized synthetic control objects}
 \usage{
-\method{plot}{cvpensynth}(x, ...)
+\method{plot}{cvpensynth}(x, treated_unit = 1, ...)
 }
 \arguments{
 \item{x}{a \code{cvpensynth} output object}
+
+\item{treated_unit}{\code{integer} index of the treated unit to display}
 
 \item{...}{additional arguments passed to \code{plot()}}
 }

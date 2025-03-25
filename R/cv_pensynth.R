@@ -4,25 +4,30 @@
 #' lambda penalty parameter. Lambda will be determined by minimizing the mean squared
 #' error on a hold-out set of pre-intervention outcome time-series.
 #'
-#' @param X1 `N_covars by 1 matrix` of treated unit covariates
+#' @param X1 `N_covars by N_treated matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
-#' @param Z1 `N_targets by 1 matrix` of treated unit hold-out outcome
-#' @param Z0 `N_targets by N_donors matrix` of donor unit hold-out outcome
+#' @param Z1 `N_targets by N_treated matrix` of treated unit hold-out outcome(s)
+#' @param Z0 `N_targets by N_donors matrix` of donor unit hold-out outcomes
 #' @param v `N_covars vector` of variable weights, default 1
 #' @param nlambda `integer` length of lambda sequence (see details)
 #' @param opt_pars `clarabel` settings using [clarabel::clarabel_control()]
 #' @param standardize `boolean` whether to standardize the input matrices (default TRUE)
 #' @param return_solver_info `boolean` whether to return diagnostic information concerning solver (default FALSE)
-#' @param verbose whether to print progress messages. Default on if in an interactive session.
+#' @param verbose `boolean` whether to print progress messages. Default on if in an interactive session.
+#' @param adaptive_lambda `boolean`whether to allow the selected lambda to differ across treated units (default TRUE)
 #'
 #' @details The lambda sequence is an exponentially increasing sequence where
 #' The minimum lambda is always 1e-11, the max lambda is determined by the data.
 #'
-#' @returns A list of the lambda sequence, the associated weights, and the mses. If
-#' `return_solver_info` is `TRUE`, the list will also contain diagnostic information about
-#' the solvers.
+#' For multiple treated units, is `adaptive_lambda` is set to FALSE, the (shared) minimum
+#' lambda will be selected by local regression of `sqrt(mse)` on `log(lambda)`.
 #'
-#' @seealso [pensynth()], [plot.cvpensynth()], [placebo_test()], [simulate_data()]
+#' @returns A list of optimal weights, optimal lambda(s), the lambda sequence(s),
+#' the associated weights, and the mses. If there are multiple treated units,
+#' this list contains sublists for each unit. If `return_solver_info` is `TRUE`,
+#' the list will also contain diagnostic information about the solvers.
+#'
+#' @seealso [pensynth()], [plot.cvpensynth()], [placebo_test()], [simulate_data_synth()]
 #'
 #' @importFrom utils capture.output
 #' @importFrom stats loess
@@ -242,7 +247,7 @@ print.cvpensynth <- function(x, ...) {
 #' @returns numeric
 #'
 #' @keywords internal
-get_mse_cvpensynth <- function(fit) {
+get_mse_cvpensynth <- function(x) {
   # sorry for this horrible nested list code
   # this computes average MSE over the treated unit
   # models
@@ -264,7 +269,7 @@ get_mse_cvpensynth <- function(fit) {
 #' of lambda, the penalization parameter.
 #'
 #' @param x a `cvpensynth` output object
-#' @param treated_unit index of the treated unit to display
+#' @param treated_unit `integer` index of the treated unit to display
 #' @param ... additional arguments passed to `plot()`
 #'
 #' @returns No return value, called for side effects
@@ -279,7 +284,7 @@ get_mse_cvpensynth <- function(fit) {
 plot.cvpensynth <- function(x, treated_unit = 1, ...) {
 
   # collect info based on number of treated units
-  n_trt <- ncol(x$w_opt)
+  n_trt <- if (is.matrix(x$w_opt)) ncol(x$w_opt) else 1
   if (n_trt == 1) {
     lseq     <- x$lseq
     mse_path <- x$mse_path

@@ -4,10 +4,12 @@
 \alias{plot.pensynthtest}
 \title{Plotting a pensynth permutation object}
 \usage{
-\method{plot}{pensynthtest}(x, ...)
+\method{plot}{pensynthtest}(x, treated_unit = 1, ...)
 }
 \arguments{
 \item{x}{a \code{pensynthtest} object}
+
+\item{treated_unit}{\code{integer} index of the treated unit to display}
 
 \item{...}{additional parameters passed to \code{plot}}
 }
