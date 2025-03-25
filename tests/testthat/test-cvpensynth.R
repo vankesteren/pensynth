@@ -19,3 +19,13 @@ test_that("CV pensynth works", {
   expect_lt(max(res$w_path[,1]), 0.5)
 })
 
+
+test_that("CV pensynth with mutiple donors works", {
+  w <- cbind(w, w)
+  X1 <- X0 %*% w
+  Z1 <- Z0%*%w
+  res <- cv_pensynth(X1, X0, Z1, Z0, verbose = FALSE)
+  expect_equal(dim(res$w_opt), c(50, 2))
+  expect_equal(dim(predict(res, X0)), dim(X1))
+  expect_lt(sum(abs(res$w_opt - w)), 5e-3)
+})
