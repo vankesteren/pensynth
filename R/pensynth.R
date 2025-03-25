@@ -46,7 +46,7 @@ pensynth <- function(X1,
                      standardize = TRUE,
                      verbose = interactive()) {
 
-  N_treated <- ncol(X1)
+  N_treated <- if (is.matrix(X1)) ncol(X1) else 1
   if (N_treated > 1) {
     if (verbose) cli::cli_alert_info("Multiple treated units detected, estimating multiple models")
 
@@ -61,7 +61,7 @@ pensynth <- function(X1,
     return(structure(
       .Data = list(
         w = sapply(results, \(x) x[["w"]]),
-        solution = lapply(results, \(x) x[["result"]]),
+        solution = lapply(results, \(x) x[["solution"]]),
         call = match.call()
       ),
       class = "pensynth"

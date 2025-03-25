@@ -60,8 +60,7 @@ simulate_data <- function(N_donor = 50,
     } else {
       cli::cli_alert_warning("N_nonzero ({N_nonzero}) larger than N_donor ({N_donor})")
     }
-  W <- apply(W, 2, function(w)
-    w / sum(w))
+  W <- apply(W, 2, function(w) w / sum(w))
 
   # Covariates
   X0 <- matrix(rnorm(N_covar * N_donor), N_covar)
