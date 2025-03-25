@@ -13,6 +13,7 @@ The goal of `pensynth` is to make it easier to perform penalized synthetic contr
 - Faster and more memory-efficient than the original `Synth::synth` implementation for synthetic controls, because we use the [`clarabel`](https://oxfordcontrol.github.io/ClarabelDocs/stable/) quadratic program solver with sparse matrices.
 - Built-in hold-out validation on the pre-intervention outcome timeseries to determine the penalty parameter (see example below).
 - Plotting of the full solution path for hold-out validated penalized synthetic controls.
+- Support for multiple treated units, optionally with common / shared `lambda` penalty parameter estimation.
 - Placebo permutation testing of the post-intervention average treatment effect (ATE)
 
 > [!NOTE]
@@ -47,20 +48,26 @@ When the treated unit is in the convex hull of the donor units (which is more li
 The `pensynth` implementation achieves this through optimizing the following objective:
 
 ```math
-\min_{\boldsymbol{w}} \left[ \| \boldsymbol{x}_1 - \boldsymbol{X}_0 \boldsymbol{w} \|^2 + \lambda \sum_{d\in D} \boldsymbol{w}_d \|\boldsymbol{x}_1 - \boldsymbol{x}_{d}\|^2 \right]
+\min_{\boldsymbol{W}} \left[ \| \boldsymbol{X}_1 - \boldsymbol{X}_0 \boldsymbol{W} \|^2 + \lambda \sum_{t\in T} \sum_{d\in D} \boldsymbol{W}_{dt} \cdot \|\boldsymbol{X}_1^t - \boldsymbol{X}_0^d\|^2 \right]
 ```
-
 ```math
-\text{s.t.} \quad \boldsymbol{w}_1 \geq 0, ..., \boldsymbol{w}_D \geq 0,
-\, \sum_{d\in D} \boldsymbol{w}_d = 1
+\text{s.t.}
+```
+```math
+\quad \boldsymbol{W}_{\{d,t\}} \geq 0 \,\,\forall \,\,\{d,t\} \in \{D, T\},
+```
+```math
+\sum_{d\in D} \boldsymbol{W}_{\{d,t\}} = 1 \,\,\forall \,\,t \in T,
 ```
 
 Where 
-- $\boldsymbol{x}_1$ is the column vector of treated unit covariates,  
-- $\boldsymbol{X}_0$ are the covariate values for the donor units, 
+- $\boldsymbol{X}_1$ is the matrix of covariate values for the treated units,  
+- $\boldsymbol{X}_0$ is the matrix of covariate values for the treated units, 
 - $D$ is the number of donor units, 
-- $\lambda$ is the penalty parameter, and 
-- $\boldsymbol{x}_{d}$ is taken to be the $d^{th}$ column of $\boldsymbol{X}_0$.
+- $T$ is the number of treated units,
+- $\lambda$ is the penalty parameter,
+- $\boldsymbol{X}_0^d$ is taken to be the $d^{th}$ column of $\boldsymbol{X}_0$, and 
+- $\boldsymbol{X}_1^t$ is taken to be the $t^{th}$ column of $\boldsymbol{X}_1$.
 
 The first term in the objective is the same (up to variable weights) as the original synthetic control, and the second term is the nearest neighbour matching penalty.
 
@@ -73,7 +80,7 @@ library(pensynth)
 set.seed(45)
 
 # Generate some data with a 0.8SD effect
-dat <- simulate_data(treatment_effect = 0.8)
+dat <- simulate_data_synth(treatment_effect = 0.8)
 ```
 ![dataplot](img/dataplot.png)
 

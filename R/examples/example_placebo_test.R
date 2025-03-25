@@ -1,7 +1,7 @@
 set.seed(45)
 
 # simulate data with an effect of 0.8 SD
-dat <- simulate_data(treatment_effect = .8)
+dat <- simulate_data_synth(treatment_effect = .8)
 
 # fit a model
 fit <- pensynth(dat$X1, dat$X0, lambda = 1e-5)

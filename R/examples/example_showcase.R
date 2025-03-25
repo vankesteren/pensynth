@@ -2,7 +2,7 @@
 set.seed(45)
 
 # simulate data with an effect of 0.8 SD
-dat <- simulate_data(treatment_effect = 0.8, N_donor = 150)
+dat <- simulate_data_synth(treatment_effect = 0.8, N_donor = 150)
 plot(c(dat$Z1, dat$Y1), type = "l", ylim = c(-2.5, 2.5),
      main = "Observed data")
 abline(v = length(dat$Z1) + 0.5, lty = 3)

@@ -3,8 +3,9 @@
 #' This function finds out if the treated unit is in the convex hull
 #' of the donor units.
 #'
-#' @param X1 `N_covars by 1 matrix` of treated unit covariates
+#' @param X1 `N_covars by N_treated matrix` of treated unit covariates
 #' @param X0 `N_covars by N_donors matrix` of donor unit covariates
+#' @param verbose `boolean` whether to print progress messages. Default on if in an interactive session.
 #' @param ... additional arguments passed to [clarabel::clarabel()]
 #'
 #' @details
@@ -30,13 +31,17 @@
 #' has multiple columns.
 #'
 #' @export
-in_convex_hull <- function(X1, X0, ...) {
+in_convex_hull <- function(X1, X0, verbose = interactive(), ...) {
 
   # if there are multiple columns in X1, run this
   # function on each column
   N_treated <- ncol(X1)
   if (!is.null(N_treated) && N_treated > 1) {
-    res <- vapply(
+    res <- if (verbose) vapply(
+      X = cli::cli_progress_along(1:N_treated),
+      FUN = function(i) in_convex_hull(X1[, i], X0),
+      FUN.VALUE = logical(1)
+    ) else vapply(
       X = 1:N_treated,
       FUN = function(i) in_convex_hull(X1[, i], X0),
       FUN.VALUE = logical(1)

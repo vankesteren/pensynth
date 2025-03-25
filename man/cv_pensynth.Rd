@@ -14,17 +14,18 @@ cv_pensynth(
   opt_pars = clarabel::clarabel_control(),
   standardize = TRUE,
   return_solver_info = FALSE,
-  verbose = interactive()
+  verbose = interactive(),
+  adaptive_lambda = TRUE
 )
 }
 \arguments{
-\item{X1}{\verb{N_covars by 1 matrix} of treated unit covariates}
+\item{X1}{\verb{N_covars by N_treated matrix} of treated unit covariates}
 
 \item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
 
-\item{Z1}{\verb{N_targets by 1 matrix} of treated unit hold-out outcome}
+\item{Z1}{\verb{N_targets by N_treated matrix} of treated unit hold-out outcome(s)}
 
-\item{Z0}{\verb{N_targets by N_donors matrix} of donor unit hold-out outcome}
+\item{Z0}{\verb{N_targets by N_donors matrix} of donor unit hold-out outcomes}
 
 \item{v}{\verb{N_covars vector} of variable weights, default 1}
 
@@ -36,12 +37,15 @@ cv_pensynth(
 
 \item{return_solver_info}{\code{boolean} whether to return diagnostic information concerning solver (default FALSE)}
 
-\item{verbose}{whether to print progress messages. Default on if in an interactive session.}
+\item{verbose}{\code{boolean} whether to print progress messages. Default on if in an interactive session.}
+
+\item{adaptive_lambda}{\code{boolean}whether to allow the selected lambda to differ across treated units (default TRUE)}
 }
 \value{
-A list of the lambda sequence, the associated weights, and the mses. If
-\code{return_solver_info} is \code{TRUE}, the list will also contain diagnostic information about
-the solvers.
+A list of optimal weights, optimal lambda(s), the lambda sequence(s),
+the associated weights, and the mses. If there are multiple treated units,
+this list contains sublists for each unit. If \code{return_solver_info} is \code{TRUE},
+the list will also contain diagnostic information about the solvers.
 }
 \description{
 Compute a penalized synthetic control estimator with hold-out validation for the
@@ -51,13 +55,16 @@ error on a hold-out set of pre-intervention outcome time-series.
 \details{
 The lambda sequence is an exponentially increasing sequence where
 The minimum lambda is always 1e-11, the max lambda is determined by the data.
+
+For multiple treated units, is \code{adaptive_lambda} is set to FALSE, the (shared) minimum
+lambda will be selected by local regression of \code{sqrt(mse)} on \code{log(lambda)}.
 }
 \examples{
 set.seed(45)
-dat <- simulate_data()
+dat <- simulate_data_synth()
 res <- with(dat, cv_pensynth(X1, X0, Z1, Z0))
 plot(res)
 }
 \seealso{
-\code{\link[=pensynth]{pensynth()}}, \code{\link[=plot.cvpensynth]{plot.cvpensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data]{simulate_data()}}
+\code{\link[=pensynth]{pensynth()}}, \code{\link[=plot.cvpensynth]{plot.cvpensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data_synth]{simulate_data_synth()}}
 }

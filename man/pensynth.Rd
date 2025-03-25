@@ -15,7 +15,7 @@ pensynth(
 )
 }
 \arguments{
-\item{X1}{\verb{N_covars by 1 matrix} of treated unit covariates}
+\item{X1}{\verb{N_covars by N_treated matrix} of treated unit covariates}
 
 \item{X0}{\verb{N_covars by N_donors matrix} of donor unit covariates}
 
@@ -27,7 +27,7 @@ pensynth(
 
 \item{standardize}{\code{boolean} whether to standardize the input matrices (default TRUE)}
 
-\item{verbose}{whether to print progress messages. Default on if in an interactive session.}
+\item{verbose}{\code{boolean} whether to print progress messages. Default on if in an interactive session.}
 }
 \value{
 A list with two values: \code{w}, the estimated weights; and
@@ -43,13 +43,13 @@ single treated unit.
 This routine uses the same notation of the original \code{\link[Synth:synth]{Synth::synth()}} implementation
 but uses a different, faster quadratic program solver (namely, \code{\link[clarabel:clarabel]{clarabel::clarabel()}}).
 Additionally, it implements the penalization procedure described in Abadie & L'Hour (2021),
-such that the loss function is as in equation 5 of that paper (but for a single treated unit).
+such that the loss function is as in equation 5 of that paper.
 
 Variable weights are not optimized by this function, meaning they need to be pre-specified.
 This is by design.
 
 The original synthetic control method can be recovered by setting lambda = 0. For determining
-lambda based on data, see \code{\link[=cv_pensynth]{cv_pensynth()}}.
+lambda based on hold-out data, see \code{\link[=cv_pensynth]{cv_pensynth()}}.
 }
 \examples{
 # generate some data
@@ -84,5 +84,5 @@ A penalized synthetic control estimator for disaggregated data.
 \emph{Journal of the American Statistical Association, 116}(536), 1817-1834.
 }
 \seealso{
-\code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data]{simulate_data()}}, \code{\link[Synth:synth]{Synth::synth()}}
+\code{\link[=cv_pensynth]{cv_pensynth()}}, \code{\link[=placebo_test]{placebo_test()}}, \code{\link[=simulate_data_synth]{simulate_data_synth()}}, \code{\link[Synth:synth]{Synth::synth()}}
 }

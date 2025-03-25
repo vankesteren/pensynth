@@ -38,16 +38,11 @@
 #' @seealso [pensynth()], [cv_pensynth()], [placebo_test()], [simulate_data_factor()]
 #'
 #' @export
-simulate_data <- function(N_donor = 50,
-                          N_treated = 1,
-                          N_covar = 5,
-                          N_pre = 12,
-                          N_post = 6,
-                          N_nonzero = 4,
-                          treatment_effect = 1,
-                          sd_resid_X = 0.1,
-                          sd_resid_ZY = 0.1,
-                          ar1_outcome = 0.8) {
+simulate_data_synth <- function(
+  N_donor = 50, N_treated = 1, N_covar = 5, N_pre = 12,
+  N_post = 6, N_nonzero = 4, treatment_effect = 1,
+  sd_resid_X = 0.1, sd_resid_ZY = 0.1, ar1_outcome = 0.8
+) {
   # Total units
   N_units <- N_donor + N_treated
 
@@ -60,8 +55,7 @@ simulate_data <- function(N_donor = 50,
     } else {
       cli::cli_alert_warning("N_nonzero ({N_nonzero}) larger than N_donor ({N_donor})")
     }
-  W <- apply(W, 2, function(w)
-    w / sum(w))
+  W <- apply(W, 2, function(w) w / sum(w))
 
   # Covariates
   X0 <- matrix(rnorm(N_covar * N_donor), N_covar)
@@ -93,6 +87,17 @@ simulate_data <- function(N_donor = 50,
     Y0 = Y0,
     Y1 = Y1
   )
+}
+
+#' @rdname simulate_data_synth
+#' @export
+simulate_data <- function(
+  N_donor = 50, N_treated = 1, N_covar = 5, N_pre = 12,
+  N_post = 6, N_nonzero = 4, treatment_effect = 1,
+  sd_resid_X = 0.1, sd_resid_ZY = 0.1, ar1_outcome = 0.8
+) {
+  lifecycle::deprecate_warn("0.8.0", "simulate_data()", with = "simulate_data_synth()")
+  do.call(simulate_data_synth, as.list(match.call())[-1])
 }
 
 #' Simulate data according to factor model
@@ -142,6 +147,9 @@ simulate_data <- function(N_donor = 50,
 #' Standard values of sd_factors, sd_loadings, and sd_errors
 #' have been chosen such that the observed variables have
 #' expected variance of 1.
+#'
+#'
+#' @seealso [pensynth()], [cv_pensynth()], [placebo_test()], [simulate_data_synth()]
 #'
 #' @export
 simulate_data_factor <- function(N_donor = 50,

@@ -1,9 +1,9 @@
 set.seed(45)
-dat <- simulate_data(treatment_effect = 2)
+dat <- simulate_data_synth(treatment_effect = 2)
 attach(dat)
 test_that("Placebo test detects an effect", {
   fit <- pensynth(X1, X0, lambda = 4e-8, verbose = FALSE)
-  out <- capture_output(res <- placebo_test(fit, Y1, Y0))
+  out <- capture.output(res <- placebo_test(fit, Y1, Y0, verbose = FALSE))
   expect_no_error(plot(res))
   dst <- ecdf(res$ATE0)
   expect_lt(1 - dst(res$ATE1), 0.05)
@@ -11,11 +11,32 @@ test_that("Placebo test detects an effect", {
 detach(dat)
 
 set.seed(45)
-dat <- simulate_data(treatment_effect = 2, N_donor = 20)
+dat <- simulate_data_synth(treatment_effect = 2, N_donor = 20)
 attach(dat)
 test_that("Placebo test with cvpensynth works", {
   fit <- cv_pensynth(X1, X0, Z1, Z0, verbose = FALSE)
-  out <- capture_output(res <- placebo_test(fit, Y1, Y0))
+  out <- capture.output(res <- placebo_test(fit, Y1, Y0, verbose = FALSE))
+  expect_no_error(plot(res))
+})
+detach(dat)
+
+set.seed(45)
+dat <- simulate_data_synth(treatment_effect = 2, N_donor = 20, N_treated = 3)
+attach(dat)
+test_that("Placebo with multi-treated pensynth detects an effect", {
+  fit <- pensynth(X1, X0, lambda = 4e-8, verbose = FALSE)
+  out <- capture.output(res <- placebo_test(fit, Y1, Y0, verbose = FALSE))
+  expect_no_error(plot(res))
+  dst <- ecdf(res$ATE0)
+  pvals <- 1 - dst(res$ATE1)
+  expect_lt(pvals[1], .05)
+  expect_lt(pvals[2], .05)
+  expect_lt(pvals[3], .05)
+})
+
+test_that("Placebo test with multi-treated cvpensynth works", {
+  fit <- cv_pensynth(X1, X0, Z1, Z0, verbose = FALSE)
+  out <- capture.output(res <- placebo_test(fit, Y1, Y0, verbose = FALSE))
   expect_no_error(plot(res))
 })
 detach(dat)

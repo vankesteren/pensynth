@@ -1,5 +1,5 @@
 test_that("Data simulation works", {
-  dat <- simulate_data(
+  dat <- simulate_data_synth(
     N_donor = 20,
     N_covar = 5,
     N_pre = 4,
@@ -15,7 +15,7 @@ test_that("Data simulation works", {
 })
 
 test_that("Data simulation with multiple treated units works", {
-  dat <- simulate_data(
+  dat <- simulate_data_synth(
     N_donor = 20,
     N_treated = 4,
     N_covar = 5,

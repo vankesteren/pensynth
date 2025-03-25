@@ -6,27 +6,29 @@
 \alias{placebo_test.cvpensynth}
 \title{Placebo permutation test for pensynth}
 \usage{
-placebo_test(object, Y1, Y0)
+placebo_test(object, Y1, Y0, verbose = TRUE)
 
-\method{placebo_test}{pensynth}(object, Y1, Y0)
+\method{placebo_test}{pensynth}(object, Y1, Y0, verbose = TRUE)
 
-\method{placebo_test}{cvpensynth}(object, Y1, Y0)
+\method{placebo_test}{cvpensynth}(object, Y1, Y0, verbose = TRUE)
 }
 \arguments{
 \item{object}{a fitted \code{pensynth} or \code{cvpensynth} object}
 
 \item{Y1}{the post-intervention outcome of the treated unit}
 
-\item{Y0}{the post-intervention outcome of the donor units
+\item{Y0}{the post-intervention outcome of the donor units}
+
+\item{verbose}{\code{boolean} whether to print progress messages. Default on if in an interactive session.
 (with N_donors columns)}
 }
 \value{
 A list with two elements
 \itemize{
-\item E1, the treated unit effect, computed as \code{Y1 - Y0 \%*\% w}
+\item E1, the treated unit effect(s), computed as \code{Y1 - Y0 \%*\% w}
 \item E0, the donor unit effects, computed in the same way but
 using the permutation test's weights.
-\item ATE1, the estimated ATE of the treated unit
+\item ATE1, the estimated ATE of the treated unit(s)
 \item ATE0, the estimated ATE of the donor units
 }
 }
@@ -49,7 +51,7 @@ original object and calling this function.
 set.seed(45)
 
 # simulate data with an effect of 0.8 SD
-dat <- simulate_data(treatment_effect = .8)
+dat <- simulate_data_synth(treatment_effect = .8)
 
 # fit a model
 fit <- pensynth(dat$X1, dat$X0, lambda = 1e-5)

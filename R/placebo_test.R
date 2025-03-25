@@ -9,6 +9,7 @@
 #' @param object a fitted `pensynth` or `cvpensynth` object
 #' @param Y1 the post-intervention outcome of the treated unit
 #' @param Y0 the post-intervention outcome of the donor units
+#' @param verbose `boolean` whether to print progress messages. Default on if in an interactive session.
 #' (with N_donors columns)
 #'
 #' @importFrom stats getCall update
@@ -23,10 +24,10 @@
 #'
 #'
 #' @returns A list with two elements
-#' - E1, the treated unit effect, computed as `Y1 - Y0 %*% w`
+#' - E1, the treated unit effect(s), computed as `Y1 - Y0 %*% w`
 #' - E0, the donor unit effects, computed in the same way but
 #' using the permutation test's weights.
-#' - ATE1, the estimated ATE of the treated unit
+#' - ATE1, the estimated ATE of the treated unit(s)
 #' - ATE0, the estimated ATE of the donor units
 #'
 #' @seealso [pensynth()], [cv_pensynth()], [plot.pensynthtest()], [stats::update()]
@@ -40,31 +41,28 @@
 #' 493-505.
 #'
 #' @export
-placebo_test <- function(object, Y1, Y0){
+placebo_test <- function(object, Y1, Y0, verbose = TRUE){
   UseMethod("placebo_test")
 }
 
 #' @rdname placebo_test
 #' @export
-placebo_test.pensynth <- function(object, Y1, Y0) {
+placebo_test.pensynth <- function(object, Y1, Y0, verbose = TRUE) {
   # original obs - pred
   est <- Y1 - predict(object, Y0)
 
   # create a list of weights
-  N_donors <- length(object$w)
-  ps_list <- lapply(
-    1:N_donors,
-    function(n) {
-      cat("\rProgress: [", n, "/", N_donors, "]")
-      # get X1 and X0 from original environment
-      new_X1 <- eval(getCall(object)$X0)[, n, drop = FALSE]
-      new_X0 <- cbind(
-        eval(getCall(object)$X1),
-        eval(getCall(object)$X0)[, -n, drop = FALSE]
-      )
-      update(object = object, X1 = new_X1, X0 = new_X0)
-    }
-  )
+  N_donors <- if (is.matrix(object$w)) nrow(object$w) else length(object$w)
+  fun <- function(n) {
+    # get X1 and X0 from original environment
+    new_X1 <- eval(getCall(object)$X0)[, n, drop = FALSE]
+    new_X0 <- cbind(
+      eval(getCall(object)$X1),
+      eval(getCall(object)$X0)[, -n, drop = FALSE]
+    )
+    update(object = object, X1 = new_X1, X0 = new_X0, verbose = FALSE)
+  }
+  ps_list <- if (verbose) lapply(cli::cli_progress_along(1:N_donors), fun) else lapply(1:N_donors, fun)
   cat("\n")
 
   # create prediction for each iter
@@ -77,7 +75,7 @@ placebo_test.pensynth <- function(object, Y1, Y0) {
 
   # compute test statistics
   ATE0 <- colMeans(null)
-  ATE1 <- mean(est)
+  ATE1 <- if (is.vector(est)) mean(est) else colMeans(est)
 
   return(structure(
     .Data = list(
@@ -92,31 +90,29 @@ placebo_test.pensynth <- function(object, Y1, Y0) {
 
 #' @rdname placebo_test
 #' @export
-placebo_test.cvpensynth <- function(object, Y1, Y0) {
+placebo_test.cvpensynth <- function(object, Y1, Y0, verbose = TRUE) {
   # original obs - pred
   est <- Y1 - predict(object, Y0)
 
   # create a list of weights
-  N_donors <- length(object$w_opt)
-  ps_list <- lapply(
-    1:N_donors,
-    function(n) {
-      cat("\rProgress: [", n, "/", N_donors, "]")
-      # get X1 and X0 from original environment
-      new_X1 <- eval(getCall(object)$X0)[, n, drop = FALSE]
-      new_Z1 <- eval(getCall(object)$Z0)[, n, drop = FALSE]
-      new_X0 <- cbind(
-        eval(getCall(object)$X1),
-        eval(getCall(object)$X0)[, -n, drop = FALSE]
-      )
-      new_Z0 <- cbind(
-        eval(getCall(object)$Z1),
-        eval(getCall(object)$Z0)[, -n, drop = FALSE]
-      )
-      update(object = object, X1 = new_X1, X0 = new_X0, Z1 = new_Z1, Z0 = new_Z0)
-    }
-  )
-  cat("\n")
+  N_donors <- if (is.matrix(object$w_opt)) nrow(object$w_opt) else length(object$w_opt)
+  fun <- function(n) {
+    # get X1 and X0 from original environment
+    new_X1 <- eval(getCall(object)$X0)[, n, drop = FALSE]
+    new_Z1 <- eval(getCall(object)$Z0)[, n, drop = FALSE]
+    new_X0 <- cbind(
+      eval(getCall(object)$X1),
+      eval(getCall(object)$X0)[, -n, drop = FALSE]
+    )
+    new_Z0 <- cbind(
+      eval(getCall(object)$Z1),
+      eval(getCall(object)$Z0)[, -n, drop = FALSE]
+    )
+    update(object = object, X1 = new_X1, X0 = new_X0, Z1 = new_Z1, Z0 = new_Z0, verbose = FALSE)
+  }
+
+
+  ps_list <- if (verbose) lapply(cli::cli_progress_along(1:N_donors), fun) else lapply(1:N_donors, fun)
 
   # create prediction for each iter
   null <- sapply(
@@ -128,7 +124,7 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
 
   # compute test statistics
   ATE0 <- colMeans(null)
-  ATE1 <- mean(est)
+  ATE1 <- if (is.vector(est)) mean(est) else colMeans(est)
 
   return(structure(
     .Data = list(
@@ -148,6 +144,7 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
 #' for the pensynth permutation test.
 #'
 #' @param x a `pensynthtest` object
+#' @param treated_unit `integer` index of the treated unit to display
 #' @param ... additional parameters passed to `plot`
 #'
 #' @importFrom graphics legend
@@ -159,10 +156,11 @@ placebo_test.cvpensynth <- function(object, Y1, Y0) {
 #' @method plot pensynthtest
 #'
 #' @export
-plot.pensynthtest <- function(x, ...) {
+plot.pensynthtest <- function(x, treated_unit = 1, ...) {
   val_range <- range(c(x$E0, x$E1))
   N_post <- nrow(x$E0)
   N_donors <- ncol(x$E0)
+  E1 <- if (is.matrix(x$E1)) x$E1[,treated_unit] else x$E1
   plot(
     NA, ylim = val_range, xlim = c(1, N_post),
     ylab = "Treatment effect",
@@ -170,7 +168,7 @@ plot.pensynthtest <- function(x, ...) {
     ...
   )
   for (n in 1:N_donors) lines(x$E0[,n], col = "grey")
-  lines(x$E1, lwd = 1.2)
+  lines(E1, lwd = 1.2)
   legend("topright", lty = c(1, 1), col = c("grey", "black"),
          legend = c("reference", "estimate"))
 }
