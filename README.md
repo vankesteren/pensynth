@@ -62,7 +62,7 @@ The `pensynth` implementation achieves this through optimizing the following obj
 
 Where 
 - $\boldsymbol{X}_1$ is the matrix of covariate values for the treated units,  
-- $\boldsymbol{X}_0$ is the matrix of covariate values for the treated units, 
+- $\boldsymbol{X}_0$ is the matrix of covariate values for the untreated (donor) units, 
 - $D$ is the number of donor units, 
 - $T$ is the number of treated units,
 - $\lambda$ is the penalty parameter,
