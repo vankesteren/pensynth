@@ -1,7 +1,7 @@
 Package: pensynth
 Type: Package
 Title: Penalized Synthetic Control Estimation
-Version: 0.8.0
+Version: 0.8.1
 Authors@R: c(
     person("Erik-Jan", "van Kesteren", email = "e.vankesteren1@uu.nl",
            role = c("cre", "aut"), comment = c(ORCID = "0000-0003-1548-1663")),
@@ -17,9 +17,9 @@ Description: Estimate penalized synthetic control models
 License: MIT + file LICENSE
 URL: https://github.com/vankesteren/pensynth
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
+Depends: R (>= 4.1.0)
 Imports: 
     clarabel,
     cli,

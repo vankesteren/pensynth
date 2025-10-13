@@ -4,7 +4,7 @@
 \alias{get_mse_cvpensynth}
 \title{Get average mse for cvpensynth object}
 \usage{
-get_mse_cvpensynth(x)
+get_mse_cvpensynth(fit)
 }
 \arguments{
 \item{fit}{The cvpensynth object}

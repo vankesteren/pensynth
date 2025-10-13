@@ -247,19 +247,19 @@ print.cvpensynth <- function(x, ...) {
 #' @returns numeric
 #'
 #' @keywords internal
-get_mse_cvpensynth <- function(x) {
+get_mse_cvpensynth <- function(fit) {
   # sorry for this horrible nested list code
   # this computes average MSE over the treated unit
   # models
-  if (ncol(x$w_opt) == 1) return(round(min(x$mse_path), 3))
+  if (ncol(fit$w_opt) == 1) return(round(min(fit$mse_path), 3))
 
-  if (isFALSE(x$call[["adaptive_lambda"]])) return(
-    mean(sapply(seq_along(x$mse_path), function(i) {
-      opt_idx <- which.min(abs(x$lseq[[i]] - x$l_opt))
-      x$mse_path[[i]][opt_idx]
+  if (isFALSE(fit$call[["adaptive_lambda"]])) return(
+    mean(sapply(seq_along(fit$mse_path), function(i) {
+      opt_idx <- which.min(abs(fit$lseq[[i]] - fit$l_opt))
+      fit$mse_path[[i]][opt_idx]
     }))
   )
-  return(round(mean(sapply(x$mse_path, min)), 3))
+  return(round(mean(sapply(fit$mse_path, min)), 3))
 }
 
 
